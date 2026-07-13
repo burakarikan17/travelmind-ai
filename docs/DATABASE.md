@@ -59,6 +59,10 @@ create policy "Kullanıcı kendi profilini görebilir"
   on profiles for select
   using (auth.uid() = id);
 
+create policy "Kullanıcı kendi profilini oluşturabilir"
+  on profiles for insert
+  with check (auth.uid() = id);
+
 create policy "Kullanıcı kendi profilini güncelleyebilir"
   on profiles for update
   using (auth.uid() = id);
