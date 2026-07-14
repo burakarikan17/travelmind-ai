@@ -1,17 +1,19 @@
 import { useForm, Controller } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useState } from 'react'
+import { useMutation } from '@tanstack/react-query'
+import { useNavigate } from 'react-router-dom'
 import { tripFormSchema } from '../lib/tripSchema'
 import { INTEREST_OPTIONS, CURRENCY_OPTIONS } from '../lib/constants'
+import { generateTripPlan } from '../services/tripService'
 
 export default function CreateTrip() {
-  const [submitError, setSubmitError] = useState(null)
+  const navigate = useNavigate()
 
   const {
     register,
     handleSubmit,
     control,
-    formState: { errors, isSubmitting },
+    formState: { errors },
   } = useForm({
     resolver: zodResolver(tripFormSchema),
     defaultValues: {
@@ -25,14 +27,17 @@ export default function CreateTrip() {
     },
   })
 
-  async function onSubmit(data) {
-    setSubmitError(null)
-    try {
-      // Bir sonraki fazda burada backend'e (/api/generate-plan) istek atılacak
-      console.log('Form verisi (henüz backend bağlı değil):', data)
-    } catch (err) {
-      setSubmitError('Plan oluşturulurken bir hata oluştu. Lütfen tekrar deneyin.')
-    }
+  const mutation = useMutation({
+    mutationFn: generateTripPlan,
+    onSuccess: (data) => {
+      console.log('Plan oluşturuldu:', data)
+      // Bir sonraki fazda burada sonuç sayfasına yönlendireceğiz:
+      // navigate(`/planlar/${data.tripId}`)
+    },
+  })
+
+  function onSubmit(data) {
+    mutation.mutate(data)
   }
 
   return (
@@ -153,16 +158,32 @@ export default function CreateTrip() {
           )}
         </div>
 
-        {submitError && <p className="text-red-500 text-sm">{submitError}</p>}
+        {mutation.isError && (
+          <p className="text-red-500 text-sm">
+            {mutation.error?.response?.data?.message || 'Plan oluşturulurken bir hata oluştu.'}
+          </p>
+        )}
+
+        {mutation.isPending && (
+          <p className="text-blue-600 text-sm">
+            Planınız oluşturuluyor, bu işlem yer doğrulaması nedeniyle biraz sürebilir...
+          </p>
+        )}
 
         <button
           type="submit"
-          disabled={isSubmitting}
+          disabled={mutation.isPending}
           className="bg-blue-600 text-white p-2.5 rounded font-medium disabled:opacity-50"
         >
-          {isSubmitting ? 'Plan Oluşturuluyor...' : 'Plan Oluştur'}
+          {mutation.isPending ? 'Plan Oluşturuluyor...' : 'Plan Oluştur'}
         </button>
       </form>
+
+      {mutation.isSuccess && (
+        <div className="mt-6 p-4 bg-green-50 border border-green-200 rounded">
+          <p className="text-green-700 font-medium">✅ Plan başarıyla oluşturuldu! (Konsolu kontrol et)</p>
+        </div>
+      )}
     </div>
   )
 }
