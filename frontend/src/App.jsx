@@ -5,10 +5,7 @@ import Layout from './components/Layout'
 import SignUp from './pages/SignUp'
 import SignIn from './pages/SignIn'
 import NotFound from './pages/NotFound'
-
-function Home() {
-  return <div className="p-6">Ana Sayfa (giriş yapıldı)</div>
-}
+import CreateTrip from './pages/CreateTrip'
 
 export default function App() {
   return (
@@ -22,7 +19,7 @@ export default function App() {
               path="/"
               element={
                 <ProtectedRoute>
-                  <Home />
+                  <CreateTrip />
                 </ProtectedRoute>
               }
             />
