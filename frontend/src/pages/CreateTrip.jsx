@@ -30,9 +30,7 @@ export default function CreateTrip() {
   const mutation = useMutation({
     mutationFn: generateTripPlan,
     onSuccess: (data) => {
-      console.log('Plan oluşturuldu:', data)
-      // Bir sonraki fazda burada sonuç sayfasına yönlendireceğiz:
-      // navigate(`/planlar/${data.tripId}`)
+          navigate(`/planlar/${data.tripId}`)
     },
   })
 

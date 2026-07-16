@@ -1,11 +1,12 @@
-import { BrowserRouter, Routes, Route } from 'react-router-dom'
-import { AuthProvider } from './hooks/useAuth'
-import ProtectedRoute from './components/ProtectedRoute'
-import Layout from './components/Layout'
-import SignUp from './pages/SignUp'
-import SignIn from './pages/SignIn'
-import NotFound from './pages/NotFound'
-import CreateTrip from './pages/CreateTrip'
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { AuthProvider } from "./hooks/useAuth";
+import ProtectedRoute from "./components/ProtectedRoute";
+import Layout from "./components/Layout";
+import SignUp from "./pages/SignUp";
+import SignIn from "./pages/SignIn";
+import NotFound from "./pages/NotFound";
+import CreateTrip from "./pages/CreateTrip";
+import TripResult from "./pages/TripResult";
 
 export default function App() {
   return (
@@ -25,8 +26,17 @@ export default function App() {
             />
             <Route path="*" element={<NotFound />} />
           </Route>
+
+          <Route
+            path="/planlar/:tripId"
+            element={
+              <ProtectedRoute>
+                <TripResult />
+              </ProtectedRoute>
+            }
+          />
         </Routes>
       </BrowserRouter>
     </AuthProvider>
-  )
+  );
 }
