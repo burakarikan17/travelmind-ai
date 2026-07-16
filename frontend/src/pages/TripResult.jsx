@@ -1,6 +1,7 @@
 import { useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { getTripById } from "../services/tripService";
+import { getExchangeRate } from "../services/currencyService";
 import TripMap from "../components/TripMap";
 import DayWeather from "../components/DayWeather";
 
@@ -10,6 +11,15 @@ export default function TripResult() {
   const { data, isLoading, isError, error } = useQuery({
     queryKey: ["trip", tripId],
     queryFn: () => getTripById(tripId),
+  });
+
+  const trip = data?.trip;
+  const days = data?.days;
+
+  const { data: exchangeRate } = useQuery({
+    queryKey: ["fx", trip?.currency, trip?.destination_currency],
+    queryFn: () => getExchangeRate(trip.currency, trip.destination_currency),
+    enabled: !!trip?.destination_currency && trip.destination_currency !== trip.currency,
   });
 
   if (isLoading) {
@@ -26,14 +36,19 @@ export default function TripResult() {
     );
   }
 
-  const { trip, days } = data;
+  function withConverted(amount) {
+    if (!exchangeRate || !trip.destination_currency || trip.destination_currency === trip.currency) {
+      return `${amount} ${trip.currency}`;
+    }
+    const converted = (amount * exchangeRate).toFixed(0);
+    return `${amount} ${trip.currency} (~${converted} ${trip.destination_currency})`;
+  }
 
   return (
     <div className="max-w-3xl mx-auto mt-8 p-6">
       <h1 className="text-2xl font-bold mb-1">{trip.destination}</h1>
       <p className="text-gray-500 mb-6">
-        {trip.duration_days} gün · {trip.people_count} kişi · {trip.budget}{" "}
-        {trip.currency}
+        {trip.duration_days} gün · {trip.people_count} kişi · {withConverted(trip.budget)}
       </p>
 
       <div className="flex flex-col gap-6">
@@ -79,7 +94,7 @@ export default function TripResult() {
                   <div className="flex items-center gap-2 mt-2">
                     {activity.estimated_cost != null && (
                       <span className="text-xs bg-blue-50 text-blue-700 px-2 py-0.5 rounded">
-                        ~{activity.estimated_cost} {trip.currency}
+                        ~{withConverted(activity.estimated_cost)}
                       </span>
                     )}
                     {!activity.is_place_verified && (

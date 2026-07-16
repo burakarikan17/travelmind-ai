@@ -4,8 +4,25 @@ dotenv.config()
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY
 const GEMINI_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent?key=${GEMINI_API_KEY}`
 
+async function callGeminiWithRetry(url, options, maxRetries = 3) {
+  for (let attempt = 0; attempt <= maxRetries; attempt++) {
+    const response = await fetch(url, options)
+
+    if (response.ok) return response
+
+    if ((response.status === 503 || response.status === 429) && attempt < maxRetries) {
+      const waitTime = (attempt + 1) * 3000
+      console.log(`Gemini API meşgul (${response.status}), ${waitTime / 1000}sn sonra tekrar denenecek... (deneme ${attempt + 1}/${maxRetries})`)
+      await new Promise((resolve) => setTimeout(resolve, waitTime))
+      continue
+    }
+
+    return response
+  }
+}
+
 function buildPrompt({ destination, startDate, durationDays, budget, currency, peopleCount, interests }) {
-  return `Sen bir seyahat planlama asistanısın. Aşağıdaki bilgilere göre detaylı, gerçekçi bir seyahat planı oluştur.
+  return `Sen bir seyahat planlama asistanısın. Aşağıdaki bilgilere göre detaylı, gerçekçi bir GÜNLÜK GEZİ planı oluştur.
 
 SEYAHAT BİLGİLERİ:
 - Şehir/Ülke: ${destination}
@@ -22,9 +39,13 @@ KURALLAR:
 4. Toplam plan, belirtilen bütçeyi (${budget} ${currency}) aşmamaya çalışmalı.
 5. İlgi alanlarına (${interests.join(', ')}) uygun aktiviteleri önceliklendir.
 6. Her gün için 3-5 arası zaman dilimi öner, gerçekçi saatler kullan.
+7. "placeName" alanına SADECE mekanın gerçek, resmi adını yaz — "Giriş", "Alışverişi", "Akşam Yemeği", "'da" gibi ek kelimeler veya hal ekleri EKLEME. Örnek: title "Gino Sorbillo'da Akşam Yemeği" ise placeName "Gino Sorbillo" olmalı.
+8. KONAKLAMA/OTEL/HOSTEL ÖNERME. Kullanıcı kalacağı yeri kendisi ayarlıyor, plana otel check-in, hostel yerleşme gibi konaklama aktiviteleri EKLEME. Sadece gezi, yeme-içme, eğlence, ulaşım gibi günlük aktivitelere odaklan.
+9. En üst seviyede (days dizisinin yanında, aynı JSON objesinin içinde) "destinationCurrency" alanına, ${destination}'ın bulunduğu ülkede resmi olarak kullanılan para biriminin ISO 4217 kodunu yaz (örn. İtalya için "EUR", Japonya için "JPY", ABD için "USD").
 
 BEKLENEN JSON ŞEMASI:
 {
+  "destinationCurrency": "EUR",
   "days": [
     {
       "dayNumber": 1,
@@ -33,9 +54,10 @@ BEKLENEN JSON ŞEMASI:
       "activities": [
         {
           "timeSlot": "09:00 - 11:00",
-          "title": "Mekan/aktivite adı",
+          "title": "Kullanıcıya gösterilecek başlık",
+          "placeName": "Mekanın sade, resmi adı (yoksa boş string)",
           "description": "1-2 cümlelik açıklama",
-          "category": "gezi | yeme-icme | konaklama | ulasim | diger",
+          "category": "gezi | yeme-icme | eglence | ulasim | diger",
           "estimatedCost": 500
         }
       ]
@@ -53,7 +75,7 @@ function cleanGeminiResponse(rawText) {
 export async function generateTripPlan(formData) {
   const prompt = buildPrompt(formData)
 
-  const response = await fetch(GEMINI_URL, {
+  const response = await callGeminiWithRetry(GEMINI_URL, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({

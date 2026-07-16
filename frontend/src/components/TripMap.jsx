@@ -21,11 +21,16 @@ export default function TripMap({ activities }) {
   const routePoints = verifiedActivities.map((a) => [a.latitude, a.longitude])
 
   return (
-    <MapContainer center={center} zoom={13} style={{ height: '300px', width: '100%' }}>
+   <MapContainer
+  center={center}
+  zoom={13}
+  scrollWheelZoom={false}
+  style={{ height: '320px', width: '100%', borderRadius: '8px' }}
+>
       <TileLayer
-        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-        attribution='&copy; OpenStreetMap katkıda bulunanlar'
-      />
+  url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"
+  attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> katkıda bulunanlar &copy; <a href="https://carto.com/attributions">CARTO</a>'
+/>
 
       {verifiedActivities.map((activity) => (
         <Marker key={activity.id} position={[activity.latitude, activity.longitude]}>

@@ -1,4 +1,4 @@
-import rateLimit from 'express-rate-limit'
+import rateLimit, { ipKeyGenerator } from 'express-rate-limit'
 
 // Kullanıcı başına saatte 10 istek (generate-plan endpoint'i için)
 export const generatePlanLimiter = rateLimit({
