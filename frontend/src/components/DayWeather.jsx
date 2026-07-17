@@ -13,23 +13,25 @@ export default function DayWeather({ latitude, longitude, date }) {
   }
 
   if (isLoading) {
-    return <p className="text-xs text-gray-400">Hava durumu yükleniyor...</p>
+    return (
+      <div className="h-9 w-full max-w-xs animate-pulse rounded-btn bg-ink-100" />
+    )
   }
 
   if (isError) {
-    return <p className="text-xs text-gray-400">Hava durumu alınamadı.</p>
+    return <p className="text-xs text-ink-400">Hava durumu alınamadı.</p>
   }
 
   if (!data) {
     return (
-      <p className="text-xs text-gray-400">
+      <p className="text-xs text-ink-400">
         Bu tarih için hava durumu tahmini henüz mevcut değil.
       </p>
     )
   }
 
   return (
-    <div className="flex items-center gap-3 text-sm bg-blue-50 rounded px-3 py-2">
+    <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 rounded-btn border border-brand-100 bg-brand-50 px-3 py-2 text-sm font-medium text-brand-900">
       <span>🌡️ {data.minTemp}° / {data.maxTemp}°C</span>
       <span>🌧️ {data.precipitation} mm</span>
       <span>💨 {data.windSpeed} km/s</span>

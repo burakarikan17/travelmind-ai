@@ -5,6 +5,20 @@ import { useNavigate } from 'react-router-dom'
 import { tripFormSchema } from '../lib/tripSchema'
 import { INTEREST_OPTIONS, CURRENCY_OPTIONS } from '../lib/constants'
 import { generateTripPlan } from '../services/tripService'
+import Spinner from '../components/Spinner'
+import {
+  cardClass,
+  fieldErrorClass,
+  inputClass,
+  inputErrorClass,
+  labelClass,
+  primaryButtonClass,
+} from '../lib/uiClasses'
+
+/* Hata durumunda input'un kenarlığını kırmızıya çevirir */
+function fieldClass(hasError) {
+  return hasError ? `${inputClass} ${inputErrorClass}` : inputClass
+}
 
 export default function CreateTrip() {
   const navigate = useNavigate()
@@ -30,7 +44,7 @@ export default function CreateTrip() {
   const mutation = useMutation({
     mutationFn: generateTripPlan,
     onSuccess: (data) => {
-          navigate(`/planlar/${data.tripId}`)
+      navigate(`/planlar/${data.tripId}`)
     },
   })
 
@@ -39,87 +53,138 @@ export default function CreateTrip() {
   }
 
   return (
-    <div className="max-w-xl mx-auto mt-10 p-6">
-      <h1 className="text-2xl font-bold mb-6">Yeni Seyahat Planı Oluştur</h1>
+    <div className="mx-auto w-full max-w-2xl px-4 py-10 sm:px-6 sm:py-14">
+      <div className="mb-8">
+        <h1 className="text-h1 text-ink-900">Yeni Seyahat Planı Oluştur</h1>
+        <p className="mt-1.5 text-sm text-ink-500">
+          Birkaç detay paylaş, gerisini yapay zeka halletsin.
+        </p>
+      </div>
 
-      <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-5">
-        <div>
-          <label className="block text-sm font-medium mb-1">Şehir / Ülke</label>
-          <input
-            type="text"
-            placeholder="Örn: Roma, İtalya"
-            {...register('destination')}
-            className="w-full border p-2 rounded"
-          />
-          {errors.destination && (
-            <p className="text-red-500 text-sm mt-1">{errors.destination.message}</p>
-          )}
-        </div>
+      <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-6">
+        {/* --- Rota --- */}
+        <section className={`${cardClass} flex flex-col gap-5 p-5 sm:p-6`}>
+          <h2 className="text-label uppercase tracking-wide text-ink-400">
+            Rota
+          </h2>
 
-        <div>
-          <label className="block text-sm font-medium mb-1">Başlangıç Tarihi</label>
-          <input
-            type="date"
-            {...register('startDate')}
-            className="w-full border p-2 rounded"
-          />
-          {errors.startDate && (
-            <p className="text-red-500 text-sm mt-1">{errors.startDate.message}</p>
-          )}
-        </div>
-
-        <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-medium mb-1">Gün Sayısı</label>
+            <label htmlFor="destination" className={labelClass}>
+              Şehir / Ülke
+            </label>
             <input
-              type="number"
-              {...register('durationDays', { valueAsNumber: true })}
-              className="w-full border p-2 rounded"
+              id="destination"
+              type="text"
+              placeholder="Örn: Roma, İtalya"
+              {...register('destination')}
+              className={fieldClass(errors.destination)}
             />
-            {errors.durationDays && (
-              <p className="text-red-500 text-sm mt-1">{errors.durationDays.message}</p>
+            {errors.destination && (
+              <p className={fieldErrorClass}>{errors.destination.message}</p>
             )}
           </div>
 
           <div>
-            <label className="block text-sm font-medium mb-1">Kişi Sayısı</label>
+            <label htmlFor="startDate" className={labelClass}>
+              Başlangıç Tarihi
+            </label>
             <input
-              type="number"
-              {...register('peopleCount', { valueAsNumber: true })}
-              className="w-full border p-2 rounded"
+              id="startDate"
+              type="date"
+              {...register('startDate')}
+              className={fieldClass(errors.startDate)}
             />
-            {errors.peopleCount && (
-              <p className="text-red-500 text-sm mt-1">{errors.peopleCount.message}</p>
-            )}
-          </div>
-        </div>
-
-        <div className="grid grid-cols-2 gap-4">
-          <div>
-            <label className="block text-sm font-medium mb-1">Bütçe</label>
-            <input
-              type="number"
-              placeholder="Örn: 15000"
-              {...register('budget', { valueAsNumber: true })}
-              className="w-full border p-2 rounded"
-            />
-            {errors.budget && (
-              <p className="text-red-500 text-sm mt-1">{errors.budget.message}</p>
+            {errors.startDate && (
+              <p className={fieldErrorClass}>{errors.startDate.message}</p>
             )}
           </div>
 
-          <div>
-            <label className="block text-sm font-medium mb-1">Para Birimi</label>
-            <select {...register('currency')} className="w-full border p-2 rounded">
-              {CURRENCY_OPTIONS.map((opt) => (
-                <option key={opt.value} value={opt.value}>{opt.label}</option>
-              ))}
-            </select>
-          </div>
-        </div>
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <div>
+              <label htmlFor="durationDays" className={labelClass}>
+                Gün Sayısı
+              </label>
+              <input
+                id="durationDays"
+                type="number"
+                {...register('durationDays', { valueAsNumber: true })}
+                className={fieldClass(errors.durationDays)}
+              />
+              {errors.durationDays && (
+                <p className={fieldErrorClass}>{errors.durationDays.message}</p>
+              )}
+            </div>
 
-        <div>
-          <label className="block text-sm font-medium mb-2">İlgi Alanları</label>
+            <div>
+              <label htmlFor="peopleCount" className={labelClass}>
+                Kişi Sayısı
+              </label>
+              <input
+                id="peopleCount"
+                type="number"
+                {...register('peopleCount', { valueAsNumber: true })}
+                className={fieldClass(errors.peopleCount)}
+              />
+              {errors.peopleCount && (
+                <p className={fieldErrorClass}>{errors.peopleCount.message}</p>
+              )}
+            </div>
+          </div>
+        </section>
+
+        {/* --- Bütçe --- */}
+        <section className={`${cardClass} flex flex-col gap-5 p-5 sm:p-6`}>
+          <h2 className="text-label uppercase tracking-wide text-ink-400">
+            Bütçe
+          </h2>
+
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-[1fr_auto]">
+            <div>
+              <label htmlFor="budget" className={labelClass}>
+                Bütçe
+              </label>
+              <input
+                id="budget"
+                type="number"
+                placeholder="Örn: 15000"
+                {...register('budget', { valueAsNumber: true })}
+                className={fieldClass(errors.budget)}
+              />
+              {errors.budget && (
+                <p className={fieldErrorClass}>{errors.budget.message}</p>
+              )}
+            </div>
+
+            <div>
+              <label htmlFor="currency" className={labelClass}>
+                Para Birimi
+              </label>
+              <select
+                id="currency"
+                {...register('currency')}
+                className={`${inputClass} sm:w-32`}
+              >
+                {CURRENCY_OPTIONS.map((opt) => (
+                  <option key={opt.value} value={opt.value}>
+                    {opt.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+        </section>
+
+        {/* --- İlgi alanları --- */}
+        <section className={`${cardClass} flex flex-col gap-4 p-5 sm:p-6`}>
+          <div>
+            <h2 className="text-label uppercase tracking-wide text-ink-400">
+              İlgi Alanları
+            </h2>
+            <p className="mt-1 text-xs text-ink-400">
+              Planı sana göre şekillendirmek için birden fazla seçebilirsin.
+            </p>
+          </div>
+
           <Controller
             name="interests"
             control={control}
@@ -131,6 +196,7 @@ export default function CreateTrip() {
                     <button
                       type="button"
                       key={opt.value}
+                      aria-pressed={selected}
                       onClick={() => {
                         if (selected) {
                           field.onChange(field.value.filter((v) => v !== opt.value))
@@ -138,11 +204,14 @@ export default function CreateTrip() {
                           field.onChange([...field.value, opt.value])
                         }
                       }}
-                      className={`px-3 py-1.5 rounded-full text-sm border transition ${
+                      className={[
+                        'rounded-full border px-3.5 py-1.5 text-sm font-semibold outline-none transition-all',
+                        'active:translate-y-px',
+                        'focus-visible:ring-2 focus-visible:ring-brand-400 focus-visible:ring-offset-2',
                         selected
-                          ? 'bg-blue-600 text-white border-blue-600'
-                          : 'bg-white text-gray-700 border-gray-300 hover:border-blue-400'
-                      }`}
+                          ? 'border-brand-700 bg-brand-700 text-white shadow-card hover:bg-brand-800'
+                          : 'border-ink-200 bg-white text-ink-600 hover:border-brand-300 hover:bg-brand-50 hover:text-brand-800',
+                      ].join(' ')}
                     >
                       {opt.label}
                     </button>
@@ -152,34 +221,45 @@ export default function CreateTrip() {
             )}
           />
           {errors.interests && (
-            <p className="text-red-500 text-sm mt-1">{errors.interests.message}</p>
+            <p className={fieldErrorClass}>{errors.interests.message}</p>
           )}
-        </div>
+        </section>
 
         {mutation.isError && (
-          <p className="text-red-500 text-sm">
-            {mutation.error?.response?.data?.message || 'Plan oluşturulurken bir hata oluştu.'}
+          <p
+            role="alert"
+            className="rounded-btn border border-danger-200 bg-danger-50 px-3 py-2.5 text-sm font-medium text-danger-700"
+          >
+            {mutation.error?.response?.data?.message ||
+              'Plan oluşturulurken bir hata oluştu.'}
           </p>
         )}
 
         {mutation.isPending && (
-          <p className="text-blue-600 text-sm">
-            Planınız oluşturuluyor, bu işlem yer doğrulaması nedeniyle biraz sürebilir...
-          </p>
+          <div className="flex items-start gap-3 rounded-btn border border-brand-200 bg-brand-50 px-3 py-2.5 text-sm text-brand-900">
+            <Spinner className="mt-0.5 h-4 w-4 shrink-0 text-brand-700" />
+            <p>
+              Planınız oluşturuluyor, bu işlem yer doğrulaması nedeniyle biraz
+              sürebilir...
+            </p>
+          </div>
         )}
 
         <button
           type="submit"
           disabled={mutation.isPending}
-          className="bg-blue-600 text-white p-2.5 rounded font-medium disabled:opacity-50"
+          className={`${primaryButtonClass} py-3 text-base`}
         >
+          {mutation.isPending && <Spinner />}
           {mutation.isPending ? 'Plan Oluşturuluyor...' : 'Plan Oluştur'}
         </button>
       </form>
 
       {mutation.isSuccess && (
-        <div className="mt-6 p-4 bg-green-50 border border-green-200 rounded">
-          <p className="text-green-700 font-medium">✅ Plan başarıyla oluşturuldu! (Konsolu kontrol et)</p>
+        <div className="mt-6 rounded-card border border-success-200 bg-success-50 px-4 py-3">
+          <p className="text-sm font-semibold text-success-700">
+            ✅ Plan başarıyla oluşturuldu!
+          </p>
         </div>
       )}
     </div>

@@ -8,8 +8,8 @@ export default function TripMap({ activities }) {
 
   if (verifiedActivities.length === 0) {
     return (
-      <div className="text-sm text-gray-500 p-4 bg-gray-50 rounded">
-        Bu gün için haritada gösterilecek doğrulanmış konum bulunamadı.
+      <div className="rounded-card border border-dashed border-ink-300 bg-ink-50 p-5 text-center text-sm text-ink-500">
+        🗺️ Bu gün için haritada gösterilecek doğrulanmış konum bulunamadı.
       </div>
     )
   }
@@ -42,7 +42,8 @@ export default function TripMap({ activities }) {
         </Marker>
       ))}
 
-      <Polyline positions={routePoints} color="#2563eb" />
+      {/* brand-700 — tasarım sistemindeki birincil marka rengi */}
+      <Polyline positions={routePoints} color="#0e7490" weight={3} opacity={0.8} />
     </MapContainer>
   )
 }   

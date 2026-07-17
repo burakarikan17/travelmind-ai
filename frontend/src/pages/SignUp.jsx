@@ -1,6 +1,13 @@
 import { useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { signUp } from '../services/authService'
+import Spinner from '../components/Spinner'
+import {
+  cardClass,
+  inputClass,
+  labelClass,
+  primaryButtonClass,
+} from '../lib/uiClasses'
 
 export default function SignUp() {
   const [fullName, setFullName] = useState('')
@@ -25,45 +32,93 @@ export default function SignUp() {
   }
 
   return (
-    <div className="max-w-md mx-auto mt-20 p-6">
-      <h1 className="text-2xl font-bold mb-6">Kayıt Ol</h1>
-      <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-        <input
-          type="text"
-          placeholder="Ad Soyad"
-          value={fullName}
-          onChange={(e) => setFullName(e.target.value)}
-          required
-          className="border p-2 rounded"
-        />
-        <input
-          type="email"
-          placeholder="E-posta"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          required
-          className="border p-2 rounded"
-        />
-        <input
-          type="password"
-          placeholder="Şifre"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          required
-          minLength={6}
-          className="border p-2 rounded"
-        />
-        {error && <p className="text-red-500 text-sm">{error}</p>}
-        <button
-          type="submit"
-          disabled={loading}
-          className="bg-blue-600 text-white p-2 rounded disabled:opacity-50"
+    <div className="mx-auto w-full max-w-md px-4 py-12 sm:px-6 sm:py-20">
+      <div className="mb-6 text-center">
+        <h1 className="text-h1 text-ink-900">Hesap oluştur</h1>
+        <p className="mt-1.5 text-sm text-ink-500">
+          Yapay zeka destekli seyahat planların birkaç saniye uzağında.
+        </p>
+      </div>
+
+      <div className={`${cardClass} p-6 sm:p-8`}>
+        <form onSubmit={handleSubmit} className="flex flex-col gap-5">
+          <div>
+            <label htmlFor="fullName" className={labelClass}>
+              Ad Soyad
+            </label>
+            <input
+              id="fullName"
+              type="text"
+              autoComplete="name"
+              placeholder="Ada Lovelace"
+              value={fullName}
+              onChange={(e) => setFullName(e.target.value)}
+              required
+              className={inputClass}
+            />
+          </div>
+
+          <div>
+            <label htmlFor="email" className={labelClass}>
+              E-posta
+            </label>
+            <input
+              id="email"
+              type="email"
+              autoComplete="email"
+              placeholder="ornek@eposta.com"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+              className={inputClass}
+            />
+          </div>
+
+          <div>
+            <label htmlFor="password" className={labelClass}>
+              Şifre
+            </label>
+            <input
+              id="password"
+              type="password"
+              autoComplete="new-password"
+              placeholder="En az 6 karakter"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+              minLength={6}
+              className={inputClass}
+              aria-describedby="password-hint"
+            />
+            <p id="password-hint" className="mt-1.5 text-xs text-ink-400">
+              En az 6 karakter olmalı.
+            </p>
+          </div>
+
+          {error && (
+            <p
+              role="alert"
+              className="rounded-btn border border-danger-200 bg-danger-50 px-3 py-2 text-sm font-medium text-danger-700"
+            >
+              {error}
+            </p>
+          )}
+
+          <button type="submit" disabled={loading} className={primaryButtonClass}>
+            {loading && <Spinner />}
+            {loading ? 'Kaydediliyor...' : 'Kayıt Ol'}
+          </button>
+        </form>
+      </div>
+
+      <p className="mt-6 text-center text-sm text-ink-500">
+        Zaten hesabın var mı?{' '}
+        <Link
+          to="/giris"
+          className="rounded font-semibold text-brand-700 underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400 focus-visible:ring-offset-2"
         >
-          {loading ? 'Kaydediliyor...' : 'Kayıt Ol'}
-        </button>
-      </form>
-      <p className="mt-4 text-sm">
-        Zaten hesabın var mı? <Link to="/giris" className="text-blue-600">Giriş yap</Link>
+          Giriş yap
+        </Link>
       </p>
     </div>
   )
