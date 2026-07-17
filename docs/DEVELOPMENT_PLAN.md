@@ -1,164 +1,148 @@
 # 📅 DEVELOPMENT_PLAN.md
 
-## TravelMind AI — 25 Günlük Geliştirme Planı
+## TravelMind AI — 20 Günlük Geliştirme Planı (Güncellenmiş)
 
-Bu doküman, stajyer geliştiricinin mevcut teknik seviyesine göre hazırlanmıştır.
+Bu doküman, ilk hazırlanan 25 günlük plandan sonra, gerçek geliştirme hızına göre **20 güne** revize edilmiştir. Öğrenme dönemi ve ilk fazlar planlanandan verimli ilerlediği için toplam süre kısaltılmış, buna karşılık son aşamaya **iki yeni faz** (sorun giderme + son gözden geçirme) eklenerek planın gerçekçiliği artırılmıştır.
 
-**Mevcut seviye:** Python/C#/Java/PHP/SQL orta, HTML/CSS iyi, JavaScript ve React başlangıç seviyesi.
+**Mevcut seviye:** Python/C#/Java/PHP/SQL orta, HTML/CSS iyi, JavaScript ve React başlangıç seviyesi (proje süresince gelişti).
 
-**Toplam süre:** 25 gün (5 gün öğrenme + 20 gün geliştirme)
+**Toplam süre:** 20 gün (5 gün öğrenme + 15 gün geliştirme)
 
 ---
 
 ## 🧭 Genel Strateji
 
-- İlk 5 gün, projede kullanılacak teknolojilere odaklanan yoğun bir öğrenme kampı.
-- Kalan 20 gün, MVP'yi (çalışan çekirdek akış) mümkün olduğunca erken bitirmeye odaklanan aşamalı bir geliştirme süreci.
-- **Gün 14 kontrol noktası:** Bu tarihte formdan Gemini'ye, oradan sonuç ekranına kadar uçtan uca çalışan bir akış hedeflenir. Bu noktaya kadar gecikme varsa favoriler/PDF gibi ikincil özellikler kapsam dışına alınabilir.
-- Kapsam bilinçli olarak sadeleştirilmiştir: TypeScript, Zustand, Framer Motion ve gerçek yol routing'i gibi ek öğrenme yükü getiren teknolojiler MVP dışında tutulmuştur (bkz. [ROADMAP.md](./ROADMAP.md)).
+- İlk 5 gün, projede kullanılacak teknolojilere odaklanan öğrenme kampı.
+- Kalan 15 gün, MVP'yi erken bitirip kalan zamanı **kalite ve sağlamlaştırmaya** ayıran bir geliştirme süreci.
+- Kapsam bilinçli olarak sadeleştirilmiştir: TypeScript, Zustand, gerçek yol routing'i gibi ek öğrenme yükü getiren teknolojiler MVP dışında tutulmuştur (bkz. [ROADMAP.md](./ROADMAP.md)).
+- **Yeni eklenen fazlar (6 ve 7):** Geliştirme sürecinde biriken küçük hatalar (encoding sorunları, deprecated model isimleri, eksik RLS policy'leri, z-index çakışmaları vb.) tek tek anlık çözülse de, projenin bütünsel kalitesi için ayrı bir "sorun giderme" ve "son gözden geçirme" fazına ihtiyaç duyulduğu görüldü. Bu revizyon, bunu plana resmen yansıtıyor.
 
 ---
 
 ## 📘 Faz 0 — Öğrenme Dönemi (Gün 1-5)
 
 ### Gün 1 — Modern JavaScript
-- `let/const`, arrow function, template literal
-- Destructuring, spread/rest operator
+- `let/const`, arrow function, template literal, destructuring, spread/rest
 - Array metodları: `map`, `filter`, `find`, `reduce`
-- `async/await`, `fetch` ile API çağrısı, Promise mantığı
-- Modül sistemi (`import`/`export`)
-
-**Çıktı:** Basit bir konsol uygulaması (örn. bir dizi üzerinde filtreleme/dönüştürme yapan küçük script).
+- `async/await`, `fetch`, Promise mantığı, modül sistemi
 
 ### Gün 2 — React Temelleri
-- Component mantığı, JSX
-- `props` ile veri geçişi
-- `useState` ile state yönetimi
-- `useEffect` ile yan etkiler (API çağrısı, mount/unmount)
-
-**Çıktı:** Mini bir "to-do list" uygulaması.
+- Component mantığı, JSX, props, `useState`, `useEffect`
 
 ### Gün 3 — Routing, Form, HTTP
-- React Router ile sayfa geçişleri
-- React Hook Form + Zod ile form ve validasyon
-- Axios ile GET/POST istekleri
-- TanStack Query temel kullanımı (`useQuery`, `useMutation`)
-
-**Çıktı:** Validasyonlu basit bir kayıt formu + sahte bir API'den veri çeken sayfa.
+- React Router, React Hook Form + Zod, Axios, TanStack Query temelleri
 
 ### Gün 4 — Supabase
-- Proje oluşturma, tablo tasarımı
-- Supabase Auth (kayıt/giriş) entegrasyonu
-- Supabase JS client ile CRUD işlemleri
-- Row Level Security (RLS) kavramı
-
-**Çıktı:** Kayıt/giriş yapılabilen, bir tabloya veri yazıp okuyan mini deneme projesi.
+- Proje kurulumu, Auth entegrasyonu, CRUD, RLS kavramı
 
 ### Gün 5 — Tailwind + Leaflet + Gemini
-- Tailwind ile hızlı stil yazma pratiği
-- React Leaflet ile harita gösterme, marker ekleme
-- Gemini API'ye basit istek atıp JSON formatında cevap alma denemesi
-- Express ile minimal bir proxy endpoint yazma denemesi
+- Tailwind pratiği, React Leaflet ile harita, Gemini API'ye basit istek, Express proxy denemesi
 
-**Çıktı:** Sahte veriyle harita + kart gösteren uçtan uca mini prototip.
+**Çıktı:** Uçtan uca çalışan küçük bir mini prototip.
 
 ---
 
 ## 🏗️ Faz 1 — Temel Kurulum (Gün 6-8)
 
-- Vite ile proje iskeleti (frontend + backend ayrı klasörler)
-- Klasör yapısı: `components`, `pages`, `hooks`, `services`, `lib`
-- Supabase projesi kurulumu, tablo şemaları (`users`, `trips`, `favorites`)
-- Supabase Auth entegrasyonu: kayıt, giriş, çıkış, korumalı route'lar (`ProtectedRoute` component)
-- Temel layout: navbar, sayfa iskeletleri, 404 sayfası
+- Vite proje iskeleti, klasör yapısı
+- Supabase projesi, tablo şemaları (`profiles`, `trips`)
+- Supabase Auth entegrasyonu: kayıt, giriş, çıkış, korumalı route'lar
+- Temel layout: navbar, sayfa iskeletleri
 
-**Kontrol noktası:** Kullanıcı kayıt olabiliyor, giriş yapabiliyor, korumalı sayfaya erişebiliyor.
+**Kontrol noktası:** Kullanıcı kayıt olabiliyor, giriş yapabiliyor, korumalı sayfaya erişebiliyor. ✅ Tamamlandı.
 
 ---
 
 ## 📝 Faz 2 — Seyahat Formu (Gün 9-10)
 
-- React Hook Form + Zod ile form: şehir, tarih, gün sayısı, bütçe, ilgi alanları (multi-select), kişi sayısı
-- Form validasyonu ve UX (hata mesajları, submit sırasında loading state)
-- Form verisini backend'e gönderecek servis fonksiyonu (Axios + TanStack Query mutation)
+- React Hook Form + Zod ile form: şehir, tarih, gün sayısı, bütçe, ilgi alanları, kişi sayısı
+- Form validasyonu ve UX
 
-**Kontrol noktası:** Form dolduruluyor, validasyon çalışıyor, veri konsola/network sekmesine doğru gidiyor.
-
----
-
-## 🤖 Faz 3 — Backend + Gemini Entegrasyonu (Gün 11-14)
-
-> Projenin en kritik ve en riskli fazı. Zaman planlamasında buraya pay bırakılmıştır.
-
-- Express server kurulumu, `POST /api/generate-plan` endpoint'i
-- Supabase JWT doğrulama middleware'i (istek doğrulanmadan Gemini'ye geçirilmez)
-- Rate limiting (`express-rate-limit`) — kullanıcı başına saatlik istek sınırı
-- Gemini prompt tasarımı: yapılandırılmış JSON formatında cevap (gün, saat, aktivite, tahmini maliyet alanlarıyla) — detaylar [AI_PROMPTS.md](./AI_PROMPTS.md)
-- Yer doğrulama: Gemini'nin ürettiği yer isimleri Nominatim (OSM Geocoding) API ile kontrol edilir; bulunamayan yerler "AI önerisi, doğrulanamadı" etiketiyle gösterilir
-- Basit cache: aynı şehir + tarih + bütçe + ilgi alanı kombinasyonu Supabase'de saklanır, tekrar istekte Gemini'ye gidilmeden oradan döner
-
-**Kontrol noktası (Gün 14 — MVP hedefi):** Form → Gemini → yapılandırılmış plan çıktısı uçtan uca çalışıyor.
+**Kontrol noktası:** Form dolduruluyor, validasyon çalışıyor. ✅ Tamamlandı.
 
 ---
 
-## 🗺️ Faz 4 — Sonuç Gösterimi (Gün 15-17)
+## 🤖 Faz 3 — Backend + Gemini Entegrasyonu (Gün 11-13)
 
-- Günlük plan kartları (saat, aktivite, açıklama, tahmini maliyet)
-- React Leaflet ile harita: marker'lar + noktalar arası düz polyline
-- Open-Meteo entegrasyonu (forecast API ~16 gün öncesine kadar çalışır; bu aralık dışında uygun bir bilgi mesajı gösterilir)
+> Projenin en kritik fazı, planlanandan bir gün kısa sürede tamamlandı.
 
-**Kontrol noktası:** Plan; kart listesi, harita ve hava durumu ile birlikte görüntüleniyor.
+- Express server, `POST /api/generate-plan` endpoint'i
+- Supabase JWT doğrulama middleware'i, rate limiting
+- Gemini prompt tasarımı, yapılandırılmış JSON çıktı (bkz. [AI_PROMPTS.md](./AI_PROMPTS.md))
+- Nominatim ile yer doğrulama (placeName alanı ile temiz sorgu)
+- Supabase cache mekanizması (`ai_response_cache`)
+- Gemini 503/429 hataları için otomatik retry mekanizması
+
+**Kontrol noktası (MVP hedefi):** Form → Gemini → yapılandırılmış plan çıktısı uçtan uca çalışıyor. ✅ Tamamlandı.
 
 ---
 
-## ❤️ Faz 5 — Favoriler + PDF (Gün 18-19)
+## 🗺️ Faz 4 — Sonuç Gösterimi (Gün 14-15)
 
-- Favorilere ekleme/çıkarma (Supabase tablo + TanStack Query mutation)
+- Günlük plan kartları, React Leaflet harita (marker + polyline)
+- Open-Meteo hava durumu entegrasyonu (16 gün sınırı bilgilendirmesi ile)
+- Frankfurter API ile canlı döviz kuru çevirme (hedef ülke para birimi gösterimi)
+- Frontend tasarım sistemi: Tailwind v4 custom tema, tutarlı bileşen kütüphanesi
+
+**Kontrol noktası:** Plan; kart listesi, harita, hava durumu ve kur bilgisiyle birlikte görüntüleniyor. ✅ Tamamlandı.
+
+---
+
+## ❤️ Faz 5 — Favoriler + PDF (Gün 16)
+
+- Favorilere ekleme/çıkarma (`favorite_trips` tablosu + toggle buton)
 - PDF export: `jsPDF` ile sade, tek sayfalık plan çıktısı
 
 **Not:** Zaman darsa bu faz kısaltılabilir; temel akış (Faz 1-4) her zaman önceliklidir.
 
----
-
-## 📱 Faz 6 — Responsive + Cilalama (Gün 20-21)
-
-- Mobil/tablet breakpoint kontrolleri (Tailwind `sm:`, `md:`, `lg:`)
-- Loading skeleton'ları
-- Error state'leri (API hatası, boş sonuç, timeout, ağ hatası)
 
 ---
 
-## 🧪 Faz 7 — Test ve Hata Ayıklama (Gün 22-23)
+## 🔧 Faz 6 — Sorun Giderme ve İyileştirme (Gün 17-18)
 
-- Kritik akışların manuel testi: kayıt → giriş → plan oluştur → favorile → PDF indir
-- Zaman kalırsa temel Vitest testleri (örn. form validasyonu)
-- Console hataları ve network sekmesi kontrolü
-- Farklı ekran boyutlarında manuel responsive test
+> **Yeni eklenen faz.** Geliştirme sürecinde biriken, "sonra bakarım" denilip ertelenmiş küçük sorunların toplu olarak ele alındığı, projenin sağlamlığını artıran bir faz.
+
+- Bilinen teknik borçların gözden geçirilmesi:
+  - Rate limit middleware'indeki IPv6 uyarısının kökten çözülmesi
+  - Gemini model adı gibi dış servis bağımlılıklarının güncel kalması için not düşülmesi
+  - Nominatim doğrulama oranının örnek şehirlerle tekrar test edilmesi
+- Responsive tasarım kontrolleri: mobil/tablet breakpoint'lerinde form, kartlar, navbar
+- Loading skeleton'ları ve error state'lerinin (API hatası, boş sonuç, timeout) gözden geçirilmesi
+- Kod tekrarlarının (örn. `withConverted` gibi tekrar eden mantıklar) küçük refactor'larla sadeleştirilmesi
+- Konsol/tarayıcıda kalan geçici debug loglarının (`console.log`) temizlenmesi
+
+**Kontrol noktası:** Bilinen açık hata/uyarı kalmıyor, uygulama farklı ekran boyutlarında tutarlı görünüyor.
 
 ---
 
-## 🚀 Faz 8 — Deploy (Gün 24-25)
+## ✅ Faz 7 — Son Gözden Geçirme ve Yayın Hazırlığı (Gün 19-20)
 
-- Frontend → Vercel, Backend → Render
-- Ortam değişkenlerinin production'da doğru ayarlanması
-- `.env.example` dosyalarının eklenmesi (gerçek key'ler commit edilmez)
-- README güncellemesi, kısa bir demo video/GIF hazırlığı (staj sunumu için)
+> **Yeni eklenen faz.** Projenin teslim/sunum öncesi son kontrol ve yayına alma aşaması.
+
+- Kritik akışların uçtan uca manuel testi: kayıt → giriş → plan oluştur → favorile → PDF indir
+- `.env.example` dosyalarının güncel ve doğru olduğunun teyidi
+- README ve `/docs` dokümantasyonunun projenin son haliyle tutarlı olduğunun kontrolü
+- Git geçmişinin gözden geçirilmesi (gizli anahtarların hiç commit'lenmediğinin doğrulanması)
+- Frontend → Vercel, Backend → Render deploy'u
+- Production ortam değişkenlerinin doğru ayarlanması
+- Kısa bir demo video/GIF hazırlığı (staj sunumu için)
+
+**Kontrol noktası:** Proje canlıda çalışıyor, dokümantasyon güncel, sunum materyali hazır.
 
 ---
 
 ## ⏱️ Özet Takvim
 
-| Gün | Faz | Odak |
-|---|---|---|
-| 1-5 | Öğrenme | JS, React, Supabase, Tailwind, Leaflet, Gemini |
-| 6-8 | Faz 1 | Kurulum + Auth |
-| 9-10 | Faz 2 | Seyahat formu |
-| 11-14 | Faz 3 | Backend + Gemini entegrasyonu (kritik faz) |
-| 15-17 | Faz 4 | Harita + hava durumu + sonuç gösterimi |
-| 18-19 | Faz 5 | Favoriler + PDF |
-| 20-21 | Faz 6 | Responsive + cilalama |
-| 22-23 | Faz 7 | Test |
-| 24-25 | Faz 8 | Deploy + sunum hazırlığı |
+| Gün | Faz | Odak | Durum |
+|---|---|---|---|
+| 1-5 | Faz 0 | Öğrenme (JS, React, Supabase, Tailwind, Leaflet, Gemini) | ✅ |
+| 6-8 | Faz 1 | Kurulum + Auth | ✅ |
+| 9-10 | Faz 2 | Seyahat formu | ✅ |
+| 11-13 | Faz 3 | Backend + Gemini entegrasyonu | ✅ |
+| 14-15 | Faz 4 | Harita + hava durumu + sonuç gösterimi + tasarım sistemi | ✅ |
+| 16 | Faz 5 | Favoriler + PDF | 🔄 |
+| 17-18 | Faz 6 | Sorun giderme ve iyileştirme | ⏳ |
+| 19-20 | Faz 7 | Son gözden geçirme ve yayın hazırlığı | ⏳ |
 
 ---
 
@@ -168,6 +152,6 @@ Bu doküman, stajyer geliştiricinin mevcut teknik seviyesine göre hazırlanmı
 |---|---|
 | Gemini'nin yanlış/uydurma bilgi üretmesi | Nominatim ile yer doğrulama, "doğrulanamadı" etiketi |
 | Gemini API maliyetinin artması | Rate limiting + Supabase cache |
-| JS/React öğreniminin 5 günde yetersiz kalması | Faz 1'de basit örneklerle tekrar pekiştirme payı bırakılmıştır |
-| 20 günün yetmemesi | Gün 14 MVP kontrol noktası; yetmezse Faz 5 kısaltılır, Faz 6-7 sadeleştirilir |
+| Dış servislerin (Gemini model adları vb.) sık değişmesi | Faz 6'da bağımlılıkların gözden geçirilmesi, dokümante edilmesi |
+| Kalan 4 günün yetmemesi | Faz 5 (favoriler/PDF) esnek tutuldu; Faz 6-7 zaman darlığında birleştirilebilir, ama Faz 7'nin (deploy + dokümantasyon) asla tamamen atlanmaması hedeflenir |
 | Open-Meteo'nun uzak tarihli seyahatlerde veri dönmemesi | Kullanıcıya net bir bilgi mesajı gösterilir, uygulama kırılmaz |
