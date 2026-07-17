@@ -85,6 +85,7 @@ Kullanıcının oluşturduğu her bir seyahat planının ana kaydı.
 | `currency` | `text`, default `'TRY'` | Para birimi |
 | `people_count` | `int` | Kişi sayısı |
 | `interests` | `text[]` | İlgi alanları (örn. `{"tarih", "doğa", "yemek"}`) |
+| `destination_currency` | `text`, nullable | Hedef ülkenin resmi para birimi (ISO 4217, örn. `"EUR"`) — Gemini tarafından belirlenir, kur çevirme için kullanılır |
 | `ai_raw_response` | `jsonb` | Gemini'den gelen ham JSON çıktı (denetim/hata ayıklama amaçlı) |
 | `status` | `text`, default `'completed'` | `pending` \| `completed` \| `failed` |
 | `created_at` | `timestamptz`, default `now()` | Oluşturulma tarihi |
@@ -100,6 +101,7 @@ create table trips (
   currency text default 'TRY',
   people_count int default 1,
   interests text[],
+  destination_currency text,
   ai_raw_response jsonb,
   status text default 'completed',
   created_at timestamptz default now()
@@ -169,7 +171,7 @@ Her günün saatlik aktivite/mekan kırılımı.
 | `time_slot` | `text` | Örn. `"09:00 - 11:00"` |
 | `title` | `text` | Aktivite/mekan adı |
 | `description` | `text`, nullable | Kısa açıklama |
-| `category` | `text`, nullable | `gezi` \| `yeme-icme` \| `konaklama` \| `ulasim` vb. |
+| `category` | `text`, nullable | `gezi` \| `yeme-icme` \| `eglence` \| `ulasim` \| `diger`. Not: Gemini prompt'u bilinçli olarak konaklama/otel önerisi üretmez (bkz. AI_PROMPTS.md), bu yüzden `konaklama` kategorisi kullanılmaz. |
 | `latitude` | `double precision`, nullable | Harita için enlem |
 | `longitude` | `double precision`, nullable | Harita için boylam |
 | `estimated_cost` | `numeric`, nullable | Tahmini maliyet |

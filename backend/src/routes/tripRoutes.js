@@ -13,131 +13,106 @@ import { supabaseAdmin } from "../services/supabaseClient.js";
 
 const router = express.Router();
 
-router.post(
-  "/generate-plan",
-  requireAuth,
-  generatePlanLimiter,
-  async (req, res) => {
-    const parseResult = tripFormSchema.safeParse(req.body);
+router.post('/generate-plan', requireAuth, generatePlanLimiter, async (req, res) => {
+  const parseResult = tripFormSchema.safeParse(req.body)
 
-    if (!parseResult.success) {
-      return res.status(400).json({
-        error: "INVALID_INPUT",
-        message: "Form verisi geçersiz.",
-        details: parseResult.error.flatten(),
-      });
+  if (!parseResult.success) {
+    return res.status(400).json({
+      error: 'INVALID_INPUT',
+      message: 'Form verisi geçersiz.',
+      details: parseResult.error.flatten(),
+    })
+  }
+
+  const formData = parseResult.data
+  const cacheKey = buildCacheKey(formData)
+
+  try {
+    let verifiedPlan
+    let cacheHit = false
+
+    // 1. Cache kontrolü — sadece PLAN İÇERİĞİNİ hızlandırır
+    const cached = await getCachedPlan(cacheKey)
+    if (cached) {
+      verifiedPlan = cached
+      cacheHit = true
+    } else {
+      // 2. Gemini'den plan üret
+      const planData = await generateTripPlan(formData)
+      // 3. Yer doğrulama (Nominatim)
+      verifiedPlan = await verifyPlanPlaces(planData, formData.destination)
+      // 5. Cache'e yaz (sadece yeni üretildiyse)
+      await setCachedPlan(cacheKey, verifiedPlan)
     }
 
-    const formData = parseResult.data;
-    const cacheKey = buildCacheKey(formData);
+    // 4. Supabase'e kaydet — cache'den gelse bile HER ZAMAN yeni bir trip kaydı oluştur
+    const { data: trip, error: tripError } = await supabaseAdmin
+      .from('trips')
+      .insert({
+        user_id: req.user.id,
+        destination: formData.destination,
+        start_date: formData.startDate,
+        duration_days: formData.durationDays,
+        budget: formData.budget,
+        currency: formData.currency,
+        people_count: formData.peopleCount,
+        interests: formData.interests,
+        destination_currency: verifiedPlan.destinationCurrency || null,
+        ai_raw_response: verifiedPlan,
+        status: 'completed',
+      })
+      .select()
+      .single()
 
-    try {
-      // 1. Cache kontrolü
-      const cached = await getCachedPlan(cacheKey);
-      if (cached) {
-        return res.json({ cached: true, ...cached });
-      }
+    if (tripError) throw tripError
 
-      // 2. Gemini'den plan üret
-      const planData = await generateTripPlan(formData);
-
-      // 3. Yer doğrulama (Nominatim)
-      const verifiedPlan = await verifyPlanPlaces(
-        planData,
-        formData.destination,
-      );
-
-      // 4. Supabase'e kaydet (trips + trip_days + trip_activities)
-      const { data: trip, error: tripError } = await supabaseAdmin
-        .from("trips")
+    for (const day of verifiedPlan.days) {
+      const { data: tripDay, error: dayError } = await supabaseAdmin
+        .from('trip_days')
         .insert({
-          user_id: req.user.id,
-          destination: formData.destination,
-          start_date: formData.startDate,
-          duration_days: formData.durationDays,
-          budget: formData.budget,
-          currency: formData.currency,
-          people_count: formData.peopleCount,
-          interests: formData.interests,
-          destination_currency: verifiedPlan.destinationCurrency || null,
-          ai_raw_response: verifiedPlan,
-          status: "completed",
+          trip_id: trip.id,
+          day_number: day.dayNumber,
+          date: day.date,
+          summary: day.summary,
         })
         .select()
-        .single();
+        .single()
 
-      if (tripError) throw tripError;
+      if (dayError) throw dayError
 
-      for (const day of verifiedPlan.days) {
-        const { data: tripDay, error: dayError } = await supabaseAdmin
-          .from("trip_days")
-          .insert({
-            trip_id: trip.id,
-            day_number: day.dayNumber,
-            date: day.date,
-            summary: day.summary,
-          })
-          .select()
-          .single();
+      const activitiesToInsert = day.activities.map((act, index) => ({
+        trip_day_id: tripDay.id,
+        time_slot: act.timeSlot,
+        title: act.title,
+        description: act.description,
+        category: act.category,
+        latitude: act.latitude,
+        longitude: act.longitude,
+        estimated_cost: act.estimatedCost,
+        is_place_verified: act.isPlaceVerified,
+        order_index: index,
+      }))
 
-        if (dayError) throw dayError;
+      const { error: activitiesError } = await supabaseAdmin
+        .from('trip_activities')
+        .insert(activitiesToInsert)
 
-        const activitiesToInsert = day.activities.map((act, index) => ({
-          trip_day_id: tripDay.id,
-          time_slot: act.timeSlot,
-          title: act.title,
-          description: act.description,
-          category: act.category,
-          latitude: act.latitude,
-          longitude: act.longitude,
-          estimated_cost: act.estimatedCost,
-          is_place_verified: act.isPlaceVerified,
-          order_index: index,
-        }));
-
-        const { error: activitiesError } = await supabaseAdmin
-          .from("trip_activities")
-          .insert(activitiesToInsert);
-
-        if (activitiesError) throw activitiesError;
-      }
-
-      // 5. Cache'e yaz
-      await setCachedPlan(cacheKey, verifiedPlan);
-
-      // 6. Sonucu döndür
-      return res.json({ tripId: trip.id, cached: false, ...verifiedPlan });
-    } catch (err) {
-      console.error("Plan oluşturma hatası:", err.message);
-
-      if (
-        err.message === "GEMINI_API_ERROR" ||
-        err.message === "GEMINI_EMPTY_RESPONSE"
-      ) {
-        return res
-          .status(502)
-          .json({
-            error: "GEMINI_API_ERROR",
-            message: "Yapay zeka servisine ulaşılamadı.",
-          });
-      }
-      if (err.message === "AI_RESPONSE_PARSE_ERROR") {
-        return res
-          .status(502)
-          .json({
-            error: "AI_RESPONSE_PARSE_ERROR",
-            message: "Plan oluşturulamadı, lütfen tekrar deneyin.",
-          });
-      }
-
-      return res
-        .status(500)
-        .json({
-          error: "INTERNAL_ERROR",
-          message: "Beklenmeyen bir hata oluştu.",
-        });
+      if (activitiesError) throw activitiesError
     }
-  },
-);
+
+    return res.json({ tripId: trip.id, cached: cacheHit, ...verifiedPlan })
+  } catch (err) {
+    console.error('Plan oluşturma hatası:', err.message)
+
+    if (err.message === 'GEMINI_API_ERROR' || err.message === 'GEMINI_EMPTY_RESPONSE') {
+      return res.status(502).json({ error: 'GEMINI_API_ERROR', message: 'Yapay zeka servisine ulaşılamadı.' })
+    }
+    if (err.message === 'AI_RESPONSE_PARSE_ERROR') {
+      return res.status(502).json({ error: 'AI_RESPONSE_PARSE_ERROR', message: 'Plan oluşturulamadı, lütfen tekrar deneyin.' })
+    }
+
+    return res.status(500).json({ error: 'INTERNAL_ERROR', message: 'Beklenmeyen bir hata oluştu.' })
+  }
+})
 
 export default router;

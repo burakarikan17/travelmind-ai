@@ -19,7 +19,7 @@ Bu doküman, backend'in `/api/generate-plan` endpoint'inde Gemini API'ye gönder
 ## 📋 Ana Prompt Şablonu (`generate-plan`)
 
 ```
-Sen bir seyahat planlama asistanısın. Aşağıdaki bilgilere göre detaylı, gerçekçi bir seyahat planı oluştur.
+Sen bir seyahat planlama asistanısın. Aşağıdaki bilgilere göre detaylı, gerçekçi bir GÜNLÜK GEZİ planı oluştur.
 
 SEYAHAT BİLGİLERİ:
 - Şehir/Ülke: {{destination}}
@@ -30,15 +30,19 @@ SEYAHAT BİLGİLERİ:
 - İlgi Alanları: {{interests}}
 
 KURALLAR:
-1. SADECE geçerli JSON formatında cevap ver. Açıklama, markdown, kod bloğu işareti (```), giriş/kapanış cümlesi EKLEME.
-2. Önerdiğin her yer/mekan gerçekten var olmalı ve {{destination}} şehrinde/bölgesinde bulunmalıdır. Emin olmadığın, uydurma, hayali bir mekan adı ASLA verme. Emin değilsen, o zaman dilimi için mekan adı yerine genel bir aktivite kategorisi öner (örn. "Şehir merkezinde serbest zaman" gibi).
-3. Her aktivite için tahmini maliyeti {{currency}} cinsinden ver; bu bir tahmindir, kesin fiyat olarak sunma.
+1. SADECE geçerli JSON formatında cevap ver. Açıklama, markdown, kod bloğu işareti, giriş/kapanış cümlesi EKLEME.
+2. Önerdiğin her yer/mekan gerçekten var olmalı ve {{destination}} şehrinde/bölgesinde bulunmalıdır. Emin olmadığın, uydurma bir mekan adı ASLA verme. Emin değilsen, mekan adı yerine genel bir aktivite kategorisi öner.
+3. Her aktivite için tahmini maliyeti {{currency}} cinsinden ver; bu bir tahmindir.
 4. Toplam plan, belirtilen bütçeyi ({{budget}} {{currency}}) aşmamaya çalışmalı.
 5. İlgi alanlarına ({{interests}}) uygun aktiviteleri önceliklendir.
-6. Her gün için 3-5 arası zaman dilimi (aktivite) öner, gerçekçi saatler kullan (çok sıkışık bir program yapma).
+6. Her gün için 3-5 arası zaman dilimi öner, gerçekçi saatler kullan.
+7. "placeName" alanına SADECE mekanın gerçek, resmi adını yaz — "Giriş", "Alışverişi", "Akşam Yemeği", "'da" gibi ek kelimeler veya hal ekleri EKLEME. Örnek: title "Gino Sorbillo'da Akşam Yemeği" ise placeName "Gino Sorbillo" olmalı.
+8. KONAKLAMA/OTEL/HOSTEL ÖNERME. Kullanıcı kalacağı yeri kendisi ayarlıyor, plana otel check-in, hostel yerleşme gibi konaklama aktiviteleri EKLEME. Sadece gezi, yeme-içme, eğlence, ulaşım gibi günlük aktivitelere odaklan.
+9. En üst seviyede (days dizisinin yanında, aynı JSON objesinin içinde) "destinationCurrency" alanına, {{destination}}'ın bulunduğu ülkede resmi olarak kullanılan para biriminin ISO 4217 kodunu yaz (örn. İtalya için "EUR", Japonya için "JPY", ABD için "USD").
 
 BEKLENEN JSON ŞEMASI:
 {
+  "destinationCurrency": "EUR",
   "days": [
     {
       "dayNumber": 1,
@@ -47,9 +51,10 @@ BEKLENEN JSON ŞEMASI:
       "activities": [
         {
           "timeSlot": "09:00 - 11:00",
-          "title": "Mekan/aktivite adı",
+          "title": "Kullanıcıya gösterilecek başlık",
+          "placeName": "Mekanın sade, resmi adı (yoksa boş string)",
           "description": "1-2 cümlelik açıklama",
-          "category": "gezi | yeme-icme | konaklama | ulasim | diger",
+          "category": "gezi | yeme-icme | eglence | ulasim | diger",
           "estimatedCost": 500
         }
       ]
@@ -64,11 +69,11 @@ BEKLENEN JSON ŞEMASI:
 
 ## 🔍 Yer Doğrulama Akışı (Nominatim Entegrasyonu)
 
-Gemini'den dönen her `activities[].title` alanı için backend şu adımları izler:
+Gemini'den dönen her aktivite için backend şu adımları izler. Arama terimi olarak `title` DEĞİL, `placeName` kullanılır — çünkü `title` kullanıcıya gösterilecek açıklayıcı bir başlıktır (örn. "Gino Sorbillo'da Akşam Yemeği"), coğrafi arama için uygun değildir. `placeName` boşsa (Gemini spesifik bir mekan önermediyse), `title` yedek olarak kullanılır.
 
 ```
-1. title + destination birleştirilerek Nominatim'e sorgu atılır:
-   GET https://nominatim.openstreetmap.org/search?q={title},{destination}&format=json&limit=1
+1. placeName (veya boşsa title) + destination birleştirilerek Nominatim'e sorgu atılır:
+   GET https://nominatim.openstreetmap.org/search?q={placeName},{destination}&format=json&limit=1
 
 2. Sonuç varsa:
    - isPlaceVerified = true
@@ -150,6 +155,10 @@ function parsePlanResponse(rawText) {
 Parse hatası durumunda kullanıcıya teknik detay gösterilmez, genel bir hata mesajı ve "tekrar dene" butonu gösterilir (bkz. [FEATURES.md](./FEATURES.md) — hata state'leri).
 
 ---
+
+## 🔁 Geçici Hata Toleransı (Retry)
+
+Gemini API bazen geçici olarak meşgul olabilir (`503 UNAVAILABLE`) veya rate limit'e takılabilir (`429`). Bu durumlarda backend, isteği tamamen başarısız saymadan önce artan bekleme süreleriyle (3sn, 6sn, 9sn) en fazla 3 kez otomatik olarak tekrar dener. Başka türden hatalarda (örn. geçersiz API key, `400` gibi kalıcı hatalar) tekrar deneme yapılmaz, hata doğrudan kullanıcıya yansıtılır.
 
 ## 💰 Maliyet Kontrolü Notu
 
