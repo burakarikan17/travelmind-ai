@@ -1,3 +1,5 @@
+export const AUTO_INTEREST_VALUE = 'otomatik'
+
 export const INTEREST_OPTIONS = [
   { value: 'tarih', label: 'Tarih' },
   { value: 'doga', label: 'Doğa' },

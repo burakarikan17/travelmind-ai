@@ -24,7 +24,6 @@ export default function TripMap({ activities }) {
    <MapContainer
   center={center}
   zoom={13}
-  scrollWheelZoom={false}
   style={{ height: '320px', width: '100%', borderRadius: '8px' }}
 >
       <TileLayer

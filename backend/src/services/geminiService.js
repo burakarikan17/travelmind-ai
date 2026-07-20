@@ -22,6 +22,12 @@ async function callGeminiWithRetry(url, options, maxRetries = 3) {
 }
 
 function buildPrompt({ destination, startDate, durationDays, budget, currency, peopleCount, interests }) {
+  const isAutoInterests = interests.length === 1 && interests[0] === 'otomatik'
+
+  const interestsInstruction = isAutoInterests
+    ? `Kullanıcı belirli bir ilgi alanı seçmedi. Bu görevi SEN üstleneceksin: "${destination}" hangi konuda daha çok öne çıkıyor, oraya göre plan ağırlığını sen belirle. Örneğin: mutfağıyla ünlü bir yerse yeme-içme aktivitelerine, tarihi dokusuyla ünlüyse müze/tarihi mekanlara, doğasıyla ünlüyse doğa aktivitelerine, gece hayatıyla ünlüyse eğlence mekanlarına ağırlık ver. Kararını gerekçelendirmene gerek yok, sadece plana yansıt.`
+    : `İlgi Alanları: ${interests.join(', ')} — plandaki aktiviteleri bu ilgi alanlarına göre önceliklendir.`
+
   return `Sen bir seyahat planlama asistanısın. Aşağıdaki bilgilere göre detaylı, gerçekçi bir GÜNLÜK GEZİ planı oluştur.
 
 SEYAHAT BİLGİLERİ:
@@ -30,18 +36,17 @@ SEYAHAT BİLGİLERİ:
 - Süre: ${durationDays} gün
 - Bütçe: ${budget} ${currency}
 - Kişi Sayısı: ${peopleCount}
-- İlgi Alanları: ${interests.join(', ')}
+- ${interestsInstruction}
 
 KURALLAR:
 1. SADECE geçerli JSON formatında cevap ver. Açıklama, markdown, kod bloğu işareti, giriş/kapanış cümlesi EKLEME.
 2. Önerdiğin her yer/mekan gerçekten var olmalı ve ${destination} şehrinde/bölgesinde bulunmalıdır. Emin olmadığın, uydurma bir mekan adı ASLA verme. Emin değilsen, mekan adı yerine genel bir aktivite kategorisi öner.
 3. Her aktivite için tahmini maliyeti ${currency} cinsinden ver; bu bir tahmindir.
 4. Toplam plan, belirtilen bütçeyi (${budget} ${currency}) aşmamaya çalışmalı.
-5. İlgi alanlarına (${interests.join(', ')}) uygun aktiviteleri önceliklendir.
-6. Her gün için 3-5 arası zaman dilimi öner, gerçekçi saatler kullan.
-7. "placeName" alanına SADECE mekanın gerçek, resmi adını yaz — "Giriş", "Alışverişi", "Akşam Yemeği", "'da" gibi ek kelimeler veya hal ekleri EKLEME. Örnek: title "Gino Sorbillo'da Akşam Yemeği" ise placeName "Gino Sorbillo" olmalı.
-8. KONAKLAMA/OTEL/HOSTEL ÖNERME. Kullanıcı kalacağı yeri kendisi ayarlıyor, plana otel check-in, hostel yerleşme gibi konaklama aktiviteleri EKLEME. Sadece gezi, yeme-içme, eğlence, ulaşım gibi günlük aktivitelere odaklan.
-9. En üst seviyede (days dizisinin yanında, aynı JSON objesinin içinde) "destinationCurrency" alanına, ${destination}'ın bulunduğu ülkede resmi olarak kullanılan para biriminin ISO 4217 kodunu yaz (örn. İtalya için "EUR", Japonya için "JPY", ABD için "USD").
+5. Her gün için 3-5 arası zaman dilimi öner, gerçekçi saatler kullan.
+6. "placeName" alanına SADECE mekanın gerçek, resmi adını yaz — "Giriş", "Alışverişi", "Akşam Yemeği", "'da" gibi ek kelimeler veya hal ekleri EKLEME.
+7. KONAKLAMA/OTEL/HOSTEL ÖNERME. Kullanıcı kalacağı yeri kendisi ayarlıyor.
+8. En üst seviyede "destinationCurrency" alanına, ${destination}'ın bulunduğu ülkede resmi olarak kullanılan para biriminin ISO 4217 kodunu yaz.
 
 BEKLENEN JSON ŞEMASI:
 {

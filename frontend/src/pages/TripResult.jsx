@@ -139,7 +139,7 @@ export default function TripResult() {
               })()}
 
               <div className="mb-5 overflow-hidden rounded-card border border-ink-200 relative isolate z-0">
-                <TripMap activities={day.trip_activities} />
+                <TripMap activities={day.trip_activities} />  
               </div>
 
               {/* --- Aktivite kartları --- */}
