@@ -1,26 +1,26 @@
-import { Outlet, Link, NavLink, useNavigate } from 'react-router-dom'
-import { useAuth } from '../hooks/useAuth'
-import { signOut } from '../services/authService'
+import { Outlet, Link, NavLink, useNavigate } from "react-router-dom";
+import { useAuth } from "../hooks/useAuth";
+import { signOut } from "../services/authService";
 
 const navLinkClass = ({ isActive }) =>
   [
-    'relative rounded-btn px-3 py-1.5 text-sm font-semibold transition-colors',
-    'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400 focus-visible:ring-offset-2',
+    "relative rounded-btn px-3 py-1.5 text-sm font-semibold transition-colors",
+    "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400 focus-visible:ring-offset-2",
     isActive
-      ? 'text-brand-700 after:absolute after:inset-x-3 after:-bottom-0.5 after:h-0.5 after:rounded-full after:bg-brand-600'
-      : 'text-ink-600 hover:bg-ink-100 hover:text-ink-900',
-  ].join(' ')
+      ? "text-brand-700 after:absolute after:inset-x-3 after:-bottom-0.5 after:h-0.5 after:rounded-full after:bg-brand-600"
+      : "text-ink-600 hover:bg-ink-100 hover:text-ink-900",
+  ].join(" ");
 
 export default function Layout() {
-  const { user } = useAuth()
-  const navigate = useNavigate()
+  const { user } = useAuth();
+  const navigate = useNavigate();
 
   async function handleSignOut() {
     try {
-      await signOut()
-      navigate('/giris')
+      await signOut();
+      navigate("/giris");
     } catch (err) {
-      console.error('Çıkış yapılırken hata oluştu:', err.message)
+      console.error("Çıkış yapılırken hata oluştu:", err.message);
     }
   }
 
@@ -47,6 +47,12 @@ export default function Layout() {
                 <NavLink to="/" className={navLinkClass} end>
                   Yeni Plan
                 </NavLink>
+                <Link
+                  to="/favoriler"
+                  className="text-sm text-gray-600 hover:text-brand-700"
+                >
+                  Favorilerim
+                </Link>
                 <span className="hidden max-w-[16ch] truncate text-sm text-ink-500 md:inline">
                   {user.email}
                 </span>
@@ -66,11 +72,11 @@ export default function Layout() {
                   to="/kayit"
                   className={({ isActive }) =>
                     [
-                      'rounded-btn px-3 py-1.5 text-sm font-semibold text-white shadow-card transition-all',
-                      'hover:bg-brand-800 active:translate-y-px',
-                      'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400 focus-visible:ring-offset-2',
-                      isActive ? 'bg-brand-800' : 'bg-brand-700',
-                    ].join(' ')
+                      "rounded-btn px-3 py-1.5 text-sm font-semibold text-white shadow-card transition-all",
+                      "hover:bg-brand-800 active:translate-y-px",
+                      "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400 focus-visible:ring-offset-2",
+                      isActive ? "bg-brand-800" : "bg-brand-700",
+                    ].join(" ")
                   }
                 >
                   Kayıt Ol
@@ -85,5 +91,5 @@ export default function Layout() {
         <Outlet />
       </main>
     </div>
-  )
+  );
 }

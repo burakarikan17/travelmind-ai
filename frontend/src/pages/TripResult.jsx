@@ -5,10 +5,14 @@ import { getExchangeRate } from "../services/currencyService";
 import { getCategoryMeta } from "../lib/constants";
 import TripMap from "../components/TripMap";
 import DayWeather from "../components/DayWeather";
+import FavoriteButton from "../components/FavoriteButton";
 
 function TripResultSkeleton() {
   return (
-    <div className="mx-auto w-full max-w-3xl px-4 py-10 sm:px-6" aria-hidden="true">
+    <div
+      className="mx-auto w-full max-w-3xl px-4 py-10 sm:px-6"
+      aria-hidden="true"
+    >
       <div className="h-8 w-52 animate-pulse rounded-btn bg-ink-200" />
       <div className="mt-3 h-4 w-72 animate-pulse rounded bg-ink-200" />
       <div className="mt-8 flex flex-col gap-6">
@@ -49,7 +53,9 @@ export default function TripResult() {
   const { data: exchangeRate } = useQuery({
     queryKey: ["fx", trip?.currency, trip?.destination_currency],
     queryFn: () => getExchangeRate(trip.currency, trip.destination_currency),
-    enabled: !!trip?.destination_currency && trip.destination_currency !== trip.currency,
+    enabled:
+      !!trip?.destination_currency &&
+      trip.destination_currency !== trip.currency,
   });
 
   if (isLoading) {
@@ -74,7 +80,11 @@ export default function TripResult() {
   }
 
   function withConverted(amount) {
-    if (!exchangeRate || !trip.destination_currency || trip.destination_currency === trip.currency) {
+    if (
+      !exchangeRate ||
+      !trip.destination_currency ||
+      trip.destination_currency === trip.currency
+    ) {
       return `${amount} ${trip.currency}`;
     }
     const converted = (amount * exchangeRate).toFixed(0);
@@ -85,7 +95,10 @@ export default function TripResult() {
     <div className="mx-auto w-full max-w-3xl px-4 py-10 sm:px-6 sm:py-14">
       {/* --- Başlık --- */}
       <header className="mb-8">
-        <h1 className="text-display text-ink-900">{trip.destination}</h1>
+        <div className="flex items-start justify-between gap-3">
+          <h1 className="text-display text-ink-900">{trip.destination}</h1>
+          <FavoriteButton tripId={trip.id} />
+        </div>
         <div className="mt-3 flex flex-wrap items-center gap-2">
           <span className="rounded-full bg-white px-3 py-1 text-xs font-semibold text-ink-700 shadow-card">
             {trip.duration_days} gün
@@ -139,7 +152,7 @@ export default function TripResult() {
               })()}
 
               <div className="mb-5 overflow-hidden rounded-card border border-ink-200 relative isolate z-0">
-                <TripMap activities={day.trip_activities} />  
+                <TripMap activities={day.trip_activities} />
               </div>
 
               {/* --- Aktivite kartları --- */}

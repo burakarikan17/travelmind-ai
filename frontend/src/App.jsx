@@ -7,6 +7,7 @@ import SignIn from "./pages/SignIn";
 import NotFound from "./pages/NotFound";
 import CreateTrip from "./pages/CreateTrip";
 import TripResult from "./pages/TripResult";
+import Favorites from "./pages/Favorites";
 
 export default function App() {
   return (
@@ -29,6 +30,14 @@ export default function App() {
               element={
                 <ProtectedRoute>
                   <TripResult />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/favoriler"
+              element={
+                <ProtectedRoute>
+                  <Favorites />
                 </ProtectedRoute>
               }
             />
