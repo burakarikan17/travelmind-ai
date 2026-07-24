@@ -6,6 +6,7 @@ import { getCategoryMeta } from "../lib/constants";
 import TripMap from "../components/TripMap";
 import DayWeather from "../components/DayWeather";
 import FavoriteButton from "../components/FavoriteButton";
+import { generateTripPdf } from "../services/pdfService";
 
 function TripResultSkeleton() {
   return (
@@ -97,7 +98,15 @@ export default function TripResult() {
       <header className="mb-8">
         <div className="flex items-start justify-between gap-3">
           <h1 className="text-display text-ink-900">{trip.destination}</h1>
-          <FavoriteButton tripId={trip.id} />
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => generateTripPdf(trip, days)}
+              className="text-sm px-3 py-1.5 rounded border border-gray-300 text-gray-600 hover:border-brand-400 transition"
+            >
+              📄 PDF İndir
+            </button>
+            <FavoriteButton tripId={trip.id} />
+          </div>
         </div>
         <div className="mt-3 flex flex-wrap items-center gap-2">
           <span className="rounded-full bg-white px-3 py-1 text-xs font-semibold text-ink-700 shadow-card">
