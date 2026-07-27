@@ -199,6 +199,17 @@ export default function TripResult() {
                             </p>
                           )}
 
+                          {activity.place_name && (
+                            <a
+                              href={`https://www.google.com/search?q=${encodeURIComponent(activity.place_name)}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="inline-flex items-center gap-1 text-xs text-brand-700 hover:underline mt-1"
+                            >
+                              {activity.place_name} (internette ara)
+                            </a>
+                          )}
+
                           <div className="mt-3 flex flex-wrap items-center gap-1.5">
                             <span
                               className={`rounded-full px-2 py-0.5 text-xs font-semibold ${meta.chip}`}
