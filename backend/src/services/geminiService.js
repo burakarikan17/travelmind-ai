@@ -40,13 +40,18 @@ SEYAHAT BİLGİLERİ:
 
 KURALLAR:
 1. SADECE geçerli JSON formatında cevap ver. Açıklama, markdown, kod bloğu işareti, giriş/kapanış cümlesi EKLEME.
-2. Önerdiğin her yer/mekan gerçekten var olmalı ve ${destination} şehrinde/bölgesinde bulunmalıdır. Emin olmadığın, uydurma bir mekan adı ASLA verme. Emin değilsen, mekan adı yerine genel bir aktivite kategorisi öner.
+2. Önerdiğin her yer/mekan gerçekten var olmalı ve ${destination} şehrinde/bölgesinde bulunmalıdır. Emin olmadığın, uydurma bir mekan adı ASLA verme.
 3. Her aktivite için tahmini maliyeti ${currency} cinsinden ver; bu bir tahmindir.
 4. Toplam plan, belirtilen bütçeyi (${budget} ${currency}) aşmamaya çalışmalı.
 5. Her gün için 3-5 arası zaman dilimi öner, gerçekçi saatler kullan.
-6. "placeName" alanına SADECE mekanın gerçek, resmi adını yaz — "Giriş", "Alışverişi", "Akşam Yemeği", "'da" gibi ek kelimeler veya hal ekleri EKLEME.
-7. KONAKLAMA/OTEL/HOSTEL ÖNERME. Kullanıcı kalacağı yeri kendisi ayarlıyor.
-8. En üst seviyede "destinationCurrency" alanına, ${destination}'ın bulunduğu ülkede resmi olarak kullanılan para biriminin ISO 4217 kodunu yaz.
+6. HER AKTİVİTE İÇİN SOMUT BİR MEKAN ADI VER — yemek, müze, park, gezinti yeri fark etmeksizin. Genel bir aktivite tanımıyla (örn. sadece "ramen yemek", "müze gezmek") yetinme.
+   - Aktivite belirli bir yemek/lezzet türüyse: o bölgede bu lezzetle en çok özdeşleşmiş, EN POPÜLER (en pahalı değil, en çok tercih edilen/bilinen) mekanı bul.
+   - Aktivite bir müze, park, tarihi/doğal mekansa: o mekanın RESMİ adını kullan.
+   - "title" alanını şu formatta yaz: "<Aktivitenin kullanıcıya yönelik Türkçe açıklayıcı adı> (<Mekanın Türkçe bilinen adı>)". Örnek: "Yuzu Aromalı Hafif Ramen (Fuunji)" veya "Sahil Yürüyüşü (Gülpınar Sahili)".
+   - Gerçekten hiçbir spesifik mekan bulamıyorsan (çok nadir bir durum olmalı), parantez kısmını boş bırak, ama bunu mümkün olduğunca az yap.
+7. "placeName" alanına, mekanın ULUSLARARASI/İNGİLİZCE bilinen adını veya o ülkenin resmi dilindeki adını yaz — Türkçe çeviri KULLANMA. Bu alan haritalama servisinde arama yapmak için kullanılacak, bu yüzden mekanın dünya genelinde tanındığı isim olmalı. Örnek: title'da "Tokyo Ulusal Müzesi" yazsa bile, placeName "Tokyo National Museum" olmalı. Parantez boşsa placeName de boş string olsun.
+8. KONAKLAMA/OTEL/HOSTEL ÖNERME. Kullanıcı kalacağı yeri kendisi ayarlıyor.
+9. En üst seviyede "destinationCurrency" alanına, ${destination}'ın bulunduğu ülkede resmi olarak kullanılan para biriminin ISO 4217 kodunu yaz.
 
 BEKLENEN JSON ŞEMASI:
 {
@@ -59,8 +64,8 @@ BEKLENEN JSON ŞEMASI:
       "activities": [
         {
           "timeSlot": "09:00 - 11:00",
-          "title": "Kullanıcıya gösterilecek başlık",
-          "placeName": "Mekanın sade, resmi adı (yoksa boş string)",
+          "title": "Türkçe açıklama (Türkçe mekan adı)",
+          "placeName": "İngilizce/yerel dilde mekan adı",
           "description": "1-2 cümlelik açıklama",
           "category": "gezi | yeme-icme | eglence | ulasim | diger",
           "estimatedCost": 500

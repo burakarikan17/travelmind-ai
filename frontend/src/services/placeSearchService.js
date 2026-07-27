@@ -19,5 +19,10 @@ function formatLabel(result) {
   const addr = result.address || {}
   const city = addr.city || addr.town || addr.village || addr.county || result.name
   const country = addr.country
+
+  if (!city || city === country) {
+    return country || result.display_name
+  }
+
   return [city, country].filter(Boolean).join(', ')
 }
