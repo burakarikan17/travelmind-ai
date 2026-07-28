@@ -109,6 +109,14 @@ router.post(
     } catch (err) {
       console.error("Plan oluşturma hatası:", err.message);
 
+      if (err.message === "GEMINI_QUOTA_EXCEEDED") {
+        return res.status(429).json({
+          error: "GEMINI_QUOTA_EXCEEDED",
+          message:
+            "Çok fazla istek gönderildi. Lütfen bir dakika bekleyip tekrar deneyin.",
+        });
+      }
+
       if (
         err.message === "GEMINI_API_ERROR" ||
         err.message === "GEMINI_EMPTY_RESPONSE"
@@ -120,21 +128,27 @@ router.post(
             message: "Yapay zeka servisine ulaşılamadı.",
           });
       }
+      
+      if (
+        err.message === "GEMINI_API_ERROR" ||
+        err.message === "GEMINI_EMPTY_RESPONSE"
+      ) {
+        return res.status(502).json({
+          error: "GEMINI_API_ERROR",
+          message: "Yapay zeka servisine ulaşılamadı.",
+        });
+      }
       if (err.message === "AI_RESPONSE_PARSE_ERROR") {
-        return res
-          .status(502)
-          .json({
-            error: "AI_RESPONSE_PARSE_ERROR",
-            message: "Plan oluşturulamadı, lütfen tekrar deneyin.",
-          });
+        return res.status(502).json({
+          error: "AI_RESPONSE_PARSE_ERROR",
+          message: "Plan oluşturulamadı, lütfen tekrar deneyin.",
+        });
       }
 
-      return res
-        .status(500)
-        .json({
-          error: "INTERNAL_ERROR",
-          message: "Beklenmeyen bir hata oluştu.",
-        });
+      return res.status(500).json({
+        error: "INTERNAL_ERROR",
+        message: "Beklenmeyen bir hata oluştu.",
+      });
     }
   },
 );

@@ -94,10 +94,13 @@ export async function generateTripPlan(formData) {
   })
 
   if (!response.ok) {
-    const errText = await response.text()
-    console.error('Gemini API hatası:', errText)
-    throw new Error('GEMINI_API_ERROR')
+  const errText = await response.text()
+  console.error('Gemini API hatası:', errText)
+  if (response.status === 429) {
+    throw new Error('GEMINI_QUOTA_EXCEEDED')
   }
+  throw new Error('GEMINI_API_ERROR')
+}
 
   const data = await response.json()
   const rawText = data.candidates?.[0]?.content?.parts?.[0]?.text
