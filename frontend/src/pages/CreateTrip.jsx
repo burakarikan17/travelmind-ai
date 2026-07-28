@@ -107,31 +107,30 @@ export default function CreateTrip() {
           </h2>
 
           <div className="relative">
-            <label className="block text-sm font-medium mb-1">
+            <label htmlFor="destination" className={labelClass}>
               Şehir / Ülke
             </label>
             <input
+              id="destination"
               type="text"
               placeholder="Örn: Roma, İtalya"
               autoComplete="off"
               {...register("destination")}
               onFocus={() => setShowSuggestions(true)}
               onBlur={() => setTimeout(() => setShowSuggestions(false), 150)}
-              className="w-full border p-2 rounded"
+              className={fieldClass(errors.destination)}
             />
             {errors.destination && (
-              <p className="text-red-500 text-sm mt-1">
-                {errors.destination.message}
-              </p>
+              <p className={fieldErrorClass}>{errors.destination.message}</p>
             )}
 
             {showSuggestions && suggestions.length > 0 && (
-              <ul className="absolute z-10 w-full bg-white border border-gray-200 rounded mt-1 shadow-lg max-h-52 overflow-auto">
+              <ul className="absolute z-10 w-full rounded-card border border-ink-200 bg-white mt-1 shadow-card-hover max-h-52 overflow-auto">
                 {suggestions.map((s, index) => (
                   <li
                     key={index}
                     onMouseDown={() => handleSuggestionClick(s.label)}
-                    className="px-3 py-2 text-sm cursor-pointer hover:bg-gray-50"
+                    className="px-3 py-2 text-sm cursor-pointer text-ink-700 hover:bg-ink-50"
                   >
                     {s.label}
                   </li>
@@ -268,10 +267,7 @@ export default function CreateTrip() {
                         : "bg-white text-gray-600 border-gray-300 hover:border-brand-400"
                     }`}
                   >
-                    ⚡{" "}
-                    {isAuto
-                      ? "Otomatik Seçildi"
-                      : "Otomatik Seç"}
+                    ⚡ {isAuto ? "Otomatik Seçildi" : "Otomatik Seç"}
                   </button>
 
                   {!isAuto && (

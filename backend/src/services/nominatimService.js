@@ -8,20 +8,16 @@ async function verifyPlace(title, destination) {
   const query = encodeURIComponent(`${title}, ${destination}`)
   const url = `https://nominatim.openstreetmap.org/search?q=${query}&format=json&limit=1`
 
-  console.log('Nominatim sorgusu:', title, '→', url)
-
   try {
     const response = await fetch(url, {
       headers: { 'User-Agent': 'TravelMindAI/1.0 (staj projesi)' },
     })
 
     if (!response.ok) {
-      console.log('Nominatim response hatası:', response.status)
       return { verified: false, latitude: null, longitude: null }
     }
 
     const results = await response.json()
-    console.log('Nominatim sonuç sayısı:', results.length, 'title:', title)
 
     if (results.length === 0) {
       return { verified: false, latitude: null, longitude: null }
