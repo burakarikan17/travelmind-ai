@@ -63,22 +63,25 @@ export default function TripResult() {
     return <TripResultSkeleton />;
   }
 
-  if (isError) {
-    return (
-      <div className="mx-auto w-full max-w-md px-4 py-20 text-center">
-        <div className="rounded-card border border-danger-200 bg-danger-50 p-6">
-          <p className="text-h2 text-danger-700">Plan yüklenemedi</p>
-          <p className="mt-1.5 text-sm text-danger-600">{error.message}</p>
-        </div>
-        <Link
-          to="/"
-          className="mt-6 inline-block rounded-btn font-semibold text-brand-700 underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400 focus-visible:ring-offset-2"
-        >
-          Yeni plan oluştur
-        </Link>
+if (isError) {
+  return (
+    <div className="mx-auto w-full max-w-md px-4 py-20 text-center">
+      <div className="rounded-card border border-danger-200 bg-danger-50 p-6">
+        <p className="text-h2 text-danger-700">Plan yüklenemedi</p>
+        <p className="mt-1.5 text-sm text-danger-600">
+          Bu plan bulunamadı veya erişim izniniz yok.
+        </p>
       </div>
-    );
-  }
+      <Link
+        to="/"
+        className="mt-6 inline-block rounded-btn font-semibold text-brand-700 underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400 focus-visible:ring-offset-2"
+      >
+        Yeni plan oluştur
+      </Link>
+    </div>
+  );
+}
+
 
   function withConverted(amount) {
     if (
