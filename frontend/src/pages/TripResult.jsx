@@ -63,25 +63,24 @@ export default function TripResult() {
     return <TripResultSkeleton />;
   }
 
-if (isError) {
-  return (
-    <div className="mx-auto w-full max-w-md px-4 py-20 text-center">
-      <div className="rounded-card border border-danger-200 bg-danger-50 p-6">
-        <p className="text-h2 text-danger-700">Plan yüklenemedi</p>
-        <p className="mt-1.5 text-sm text-danger-600">
-          Bu plan bulunamadı veya erişim izniniz yok.
-        </p>
+  if (isError) {
+    return (
+      <div className="mx-auto w-full max-w-md px-4 py-20 text-center">
+        <div className="rounded-card border border-danger-200 bg-danger-50 p-6">
+          <p className="text-h2 text-danger-700">Plan yüklenemedi</p>
+          <p className="mt-1.5 text-sm text-danger-600">
+            Bu plan bulunamadı veya erişim izniniz yok.
+          </p>
+        </div>
+        <Link
+          to="/"
+          className="mt-6 inline-block rounded-btn font-semibold text-brand-700 underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400 focus-visible:ring-offset-2"
+        >
+          Yeni plan oluştur
+        </Link>
       </div>
-      <Link
-        to="/"
-        className="mt-6 inline-block rounded-btn font-semibold text-brand-700 underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400 focus-visible:ring-offset-2"
-      >
-        Yeni plan oluştur
-      </Link>
-    </div>
-  );
-}
-
+    );
+  }
 
   function withConverted(amount) {
     if (
@@ -103,7 +102,13 @@ if (isError) {
           <h1 className="text-display text-ink-900">{trip.destination}</h1>
           <div className="flex items-center gap-2">
             <button
-              onClick={() => generateTripPdf(trip, days)}
+              onClick={async () => {
+                try {
+                  await generateTripPdf(trip, days, exchangeRate);
+                } catch (err) {
+                  console.error("PDF oluşturulamadı:", err.message);
+                }
+              }}
               className="text-sm px-3 py-1.5 rounded border border-gray-300 text-gray-600 hover:border-brand-400 transition"
             >
               📄 PDF İndir
