@@ -22,6 +22,18 @@ export async function generateTripPlan(formData) {
   return response.data
 }
 
+export async function getRecentTrips(userId, limit = 3) {
+  const { data, error } = await supabase
+    .from('trips')
+    .select('id, destination, duration_days, people_count, budget, currency, created_at')
+    .eq('user_id', userId)
+    .order('created_at', { ascending: false })
+    .limit(limit)
+
+  if (error) throw error
+  return data
+}
+
 export async function getTripById(tripId) {
   const { data: trip, error: tripError } = await supabase
     .from('trips')
