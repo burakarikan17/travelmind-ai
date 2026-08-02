@@ -245,6 +245,14 @@ export default function TripResult() {
           </section>
         ))}
       </div>
+      <div className="mt-8 flex justify-center">
+        <Link
+          to="/"
+          className="rounded-btn bg-brand-700 px-5 py-2.5 text-sm font-semibold text-white shadow-card transition-all hover:bg-brand-800 active:translate-y-px focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400 focus-visible:ring-offset-2"
+        >
+          + Yeni Plan Oluştur
+        </Link>
+      </div>
     </div>
   );
 }
