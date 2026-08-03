@@ -1,17 +1,33 @@
 import { Link } from 'react-router-dom'
-import { useQuery } from '@tanstack/react-query'
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useAuth } from '../hooks/useAuth'
-import { getRecentTrips } from '../services/tripService'
+import { getRecentTrips, deleteTrip } from '../services/tripService'
 
 export default function RecentTrips() {
   const { user } = useAuth()
+  const queryClient = useQueryClient()
 
   const { data, isLoading, isError } = useQuery({
     queryKey: ['recentTrips', user.id],
     queryFn: () => getRecentTrips(user.id, 3),
   })
 
-  // Yükleniyor veya hata varsa ya da hiç plan yoksa, bu bölümü hiç gösterme
+  const deleteMutation = useMutation({
+    mutationFn: deleteTrip,
+    onSuccess: () => {
+      // Silme başarılı olunca listeyi yeniden çek
+      queryClient.invalidateQueries({ queryKey: ['recentTrips', user.id] })
+    },
+  })
+
+  function handleDelete(e, tripId) {
+    e.preventDefault() // Link'e tıklamayı engelle (silme butonu Link'in içinde)
+    e.stopPropagation()
+    if (window.confirm('Bu planı silmek istediğinize emin misiniz?')) {
+      deleteMutation.mutate(tripId)
+    }
+  }
+
   if (isLoading || isError || !data || data.length === 0) {
     return null
   }
@@ -34,7 +50,17 @@ export default function RecentTrips() {
                 {trip.duration_days} gün · {trip.people_count} kişi
               </p>
             </div>
-            <span className="shrink-0 text-xs text-brand-700">Görüntüle →</span>
+            <div className="flex shrink-0 items-center gap-3">
+              <span className="text-xs text-brand-700">Görüntüle →</span>
+              <button
+                onClick={(e) => handleDelete(e, trip.id)}
+                disabled={deleteMutation.isPending}
+                className="rounded-btn border border-ink-200 px-2 py-1 text-xs text-ink-500 transition-colors hover:border-danger-200 hover:bg-danger-50 hover:text-danger-700 disabled:opacity-50"
+                aria-label="Planı sil"
+              >
+                Sil
+              </button>
+            </div>
           </Link>
         ))}
       </div>

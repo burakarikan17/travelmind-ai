@@ -22,6 +22,16 @@ export async function generateTripPlan(formData) {
   return response.data
 }
 
+
+export async function deleteTrip(tripId) {
+  const { error } = await supabase
+    .from('trips')
+    .delete()
+    .eq('id', tripId)
+
+  if (error) throw error
+}
+
 export async function getRecentTrips(userId, limit = 3) {
   const { data, error } = await supabase
     .from('trips')
