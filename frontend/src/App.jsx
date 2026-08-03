@@ -8,6 +8,8 @@ import NotFound from "./pages/NotFound";
 import CreateTrip from "./pages/CreateTrip";
 import TripResult from "./pages/TripResult";
 import Favorites from "./pages/Favorites";
+import ForgotPassword from "./pages/ForgotPassword";
+import ResetPassword from "./pages/ResetPassword";
 
 export default function App() {
   return (
@@ -17,6 +19,8 @@ export default function App() {
           <Route element={<Layout />}>
             <Route path="/kayit" element={<SignUp />} />
             <Route path="/giris" element={<SignIn />} />
+            <Route path="/sifremi-unuttum" element={<ForgotPassword />} />
+            <Route path="/sifre-yenile" element={<ResetPassword />} />
             <Route
               path="/"
               element={
