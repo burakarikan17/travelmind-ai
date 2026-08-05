@@ -7,38 +7,8 @@ import TripMap from "../components/TripMap";
 import DayWeather from "../components/DayWeather";
 import FavoriteButton from "../components/FavoriteButton";
 import { generateTripPdf } from "../services/pdfService";
+import TripResultSkeleton from '../components/TripResultSkeleton'
 
-function TripResultSkeleton() {
-  return (
-    <div
-      className="mx-auto w-full max-w-3xl px-4 py-10 sm:px-6"
-      aria-hidden="true"
-    >
-      <div className="h-8 w-52 animate-pulse rounded-btn bg-ink-200" />
-      <div className="mt-3 h-4 w-72 animate-pulse rounded bg-ink-200" />
-      <div className="mt-8 flex flex-col gap-6">
-        {[0, 1].map((i) => (
-          <div
-            key={i}
-            className="rounded-card border border-ink-200 bg-white p-5 shadow-card"
-          >
-            <div className="h-5 w-44 animate-pulse rounded bg-ink-200" />
-            <div className="mt-3 h-4 w-full animate-pulse rounded bg-ink-100" />
-            <div className="mt-5 h-40 w-full animate-pulse rounded-card bg-ink-100" />
-            <div className="mt-4 flex flex-col gap-3">
-              {[0, 1, 2].map((j) => (
-                <div
-                  key={j}
-                  className="h-20 w-full animate-pulse rounded-card bg-ink-100"
-                />
-              ))}
-            </div>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-}
 
 export default function TripResult() {
   const { tripId } = useParams();
