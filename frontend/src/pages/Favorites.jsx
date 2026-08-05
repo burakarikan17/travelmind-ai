@@ -1,49 +1,74 @@
-import { Link } from 'react-router-dom'
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { useAuth } from '../hooks/useAuth'
-import { getFavoriteTrips, removeFavoriteTrip } from '../services/favoriteService'
+import { Link } from "react-router-dom";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useAuth } from "../hooks/useAuth";
+import {
+  getFavoriteTrips,
+  removeFavoriteTrip,
+} from "../services/favoriteService";
 
 export default function Favorites() {
-  const { user } = useAuth()
-  const queryClient = useQueryClient()
+  const { user } = useAuth();
+  const queryClient = useQueryClient();
 
   const { data, isLoading, isError } = useQuery({
-    queryKey: ['favorites', user.id],
+    queryKey: ["favorites", user.id],
     queryFn: () => getFavoriteTrips(user.id),
-  })
+  });
 
   const removeMutation = useMutation({
     mutationFn: (tripId) => removeFavoriteTrip(user.id, tripId),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['favorites', user.id] })
+      queryClient.invalidateQueries({ queryKey: ["favorites", user.id] });
     },
-  })
+  });
 
-function handleRemove(e, tripId) {
-  e.preventDefault()
-  e.stopPropagation()
-  if (window.confirm('Bu planı favorilerden çıkarmak istediğinize emin misiniz?')) {
-    removeMutation.mutate(tripId)
+  function handleRemove(e, tripId) {
+    e.preventDefault();
+    e.stopPropagation();
+    if (
+      window.confirm(
+        "Bu planı favorilerden çıkarmak istediğinize emin misiniz?",
+      )
+    ) {
+      removeMutation.mutate(tripId);
+    }
   }
-}
 
   if (isLoading) {
-    return <div className="p-6 text-center text-gray-500">Favoriler yükleniyor...</div>
+    return (
+      <div className="p-6 text-center text-gray-500">
+        Favoriler yükleniyor...
+      </div>
+    );
   }
 
   if (isError) {
-    return <div className="p-6 text-center text-red-500">Favoriler yüklenemedi.</div>
+    return (
+      <div className="p-6 text-center text-red-500">Favoriler yüklenemedi.</div>
+    );
   }
 
   if (data.length === 0) {
     return (
-      <div className="max-w-xl mx-auto mt-10 p-6 text-center text-gray-500">
-        <p>Henüz favori bir planınız yok.</p>
-        <Link to="/" className="text-brand-700 hover:underline text-sm mt-2 inline-block">
-          Yeni bir plan oluştur
+      <div className="mx-auto mt-16 max-w-md px-6 text-center">
+        <div className="mx-auto grid h-16 w-16 place-items-center rounded-full bg-brand-50 text-3xl">
+          ♥
+        </div>
+        <h2 className="mt-4 text-h2 font-semibold text-ink-900">
+          Henüz favori planın yok
+        </h2>
+        <p className="mt-2 text-sm text-ink-500">
+          Beğendiğin planları favorilere ekleyerek buradan hızlıca
+          ulaşabilirsin.
+        </p>
+        <Link
+          to="/"
+          className="mt-6 inline-block rounded-btn bg-brand-700 px-5 py-2.5 text-sm font-semibold text-white shadow-card transition-all hover:bg-brand-800 active:translate-y-px"
+        >
+          + Yeni Plan Oluştur
         </Link>
       </div>
-    )
+    );
   }
 
   return (
@@ -58,9 +83,12 @@ function handleRemove(e, tripId) {
             className="flex items-center justify-between rounded-card border border-ink-200 bg-white px-4 py-3 shadow-card transition-all hover:-translate-y-0.5 hover:border-brand-200 hover:shadow-card-hover"
           >
             <div className="min-w-0">
-              <p className="font-semibold text-ink-900 truncate">{fav.trips.destination}</p>
+              <p className="font-semibold text-ink-900 truncate">
+                {fav.trips.destination}
+              </p>
               <p className="text-xs text-ink-400">
-                {fav.trips.duration_days} gün · {fav.trips.people_count} kişi · {fav.trips.budget} {fav.trips.currency}
+                {fav.trips.duration_days} gün · {fav.trips.people_count} kişi ·{" "}
+                {fav.trips.budget} {fav.trips.currency}
               </p>
             </div>
             <div className="flex shrink-0 items-center gap-3">
@@ -78,5 +106,5 @@ function handleRemove(e, tripId) {
         ))}
       </div>
     </div>
-  )
+  );
 }
