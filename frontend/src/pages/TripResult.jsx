@@ -7,8 +7,9 @@ import TripMap from "../components/TripMap";
 import DayWeather from "../components/DayWeather";
 import FavoriteButton from "../components/FavoriteButton";
 import { generateTripPdf } from "../services/pdfService";
-import TripResultSkeleton from '../components/TripResultSkeleton'
-
+import TripResultSkeleton from "../components/TripResultSkeleton";
+import { useState } from "react";
+import DaySimulation from "../components/DaySimulation";
 
 export default function TripResult() {
   const { tripId } = useParams();
@@ -17,6 +18,8 @@ export default function TripResult() {
     queryKey: ["trip", tripId],
     queryFn: () => getTripById(tripId),
   });
+
+  const [simulationDay, setSimulationDay] = useState(null);
 
   const trip = data?.trip;
   const days = data?.days;
@@ -63,6 +66,8 @@ export default function TripResult() {
     const converted = (amount * exchangeRate).toFixed(0);
     return `${amount} ${trip.currency} (~${converted} ${trip.destination_currency})`;
   }
+
+  
 
   return (
     <div className="mx-auto w-full max-w-3xl px-4 py-10 sm:px-6 sm:py-14">
@@ -113,6 +118,12 @@ export default function TripResult() {
               <div className="min-w-0">
                 <h2 className="text-h2 text-ink-900">{day.day_number}. Gün</h2>
                 <p className="text-xs font-medium text-ink-400">{day.date}</p>
+                <button
+                  onClick={() => setSimulationDay(day)}
+                  className="shrink-0 rounded-btn bg-brand-700 px-3 py-1.5 text-xs font-semibold text-white shadow-card transition-all hover:bg-brand-800"
+                >
+                  ▶ Simülasyon
+                </button>
               </div>
             </div>
 
@@ -223,6 +234,12 @@ export default function TripResult() {
           + Yeni Plan Oluştur
         </Link>
       </div>
+      {simulationDay && (
+        <DaySimulation
+          day={simulationDay}
+          onClose={() => setSimulationDay(null)}
+        />
+      )}
     </div>
   );
 }
