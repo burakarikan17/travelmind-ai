@@ -7,7 +7,7 @@ import { generateTripPlan } from "../services/tripService";
 import Spinner from "../components/Spinner";
 import { useState, useRef, useEffect } from "react";
 import { searchDestinations } from "../services/placeSearchService";
-import RecentTrips from '../components/RecentTrips';
+import RecentTrips from "../components/RecentTrips";
 import {
   INTEREST_OPTIONS,
   CURRENCY_OPTIONS,
@@ -332,14 +332,14 @@ export default function CreateTrip() {
         <button
           type="submit"
           disabled={mutation.isPending}
-          className={`${primaryButtonClass} py-3 text-base`}
+          className={`${primaryButtonClass} py-3 text-base cursor-pointer disabled:cursor-not-allowed`}
         >
           {mutation.isPending && <Spinner />}
           {mutation.isPending ? "Plan Oluşturuluyor..." : "Plan Oluştur"}
         </button>
       </form>
 
-       <RecentTrips />
+      <RecentTrips />
 
       {mutation.isSuccess && (
         <div className="mt-6 rounded-card border border-success-200 bg-success-50 px-4 py-3">

@@ -67,8 +67,6 @@ export default function TripResult() {
     return `${amount} ${trip.currency} (~${converted} ${trip.destination_currency})`;
   }
 
-  
-
   return (
     <div className="mx-auto w-full max-w-3xl px-4 py-10 sm:px-6 sm:py-14">
       {/* --- Başlık --- */}
@@ -84,7 +82,7 @@ export default function TripResult() {
                   console.error("PDF oluşturulamadı:", err.message);
                 }
               }}
-              className="text-sm px-3 py-1.5 rounded border border-gray-300 text-gray-600 hover:border-brand-400 transition"
+              className="text-sm px-3 py-1.5 rounded border border-gray-300 text-gray-600 hover:border-brand-400 transition cursor-pointer"
             >
               📄 PDF İndir
             </button>
@@ -120,7 +118,7 @@ export default function TripResult() {
                 <p className="text-xs font-medium text-ink-400">{day.date}</p>
                 <button
                   onClick={() => setSimulationDay(day)}
-                  className="shrink-0 rounded-btn bg-brand-700 px-3 py-1.5 text-xs font-semibold text-white shadow-card transition-all hover:bg-brand-800"
+                  className="shrink-0 rounded-btn bg-brand-700 px-3 py-1.5 text-xs font-semibold text-white shadow-card transition-all hover:bg-brand-800 cursor-pointer"
                 >
                   ▶ Simülasyon
                 </button>
