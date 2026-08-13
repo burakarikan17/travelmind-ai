@@ -1,5 +1,20 @@
+import { useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
+import {
+  Download,
+  Share2,
+  Play,
+  Calendar,
+  Users,
+  Wallet,
+  MapPin,
+  Check,
+  ExternalLink,
+  PlusCircle,
+  PieChart,
+} from "lucide-react";
+import { toast } from "sonner";
 import { getTripById } from "../services/tripService";
 import { getExchangeRate } from "../services/currencyService";
 import { getCategoryMeta } from "../lib/constants";
@@ -8,18 +23,17 @@ import DayWeather from "../components/DayWeather";
 import FavoriteButton from "../components/FavoriteButton";
 import { generateTripPdf } from "../services/pdfService";
 import TripResultSkeleton from "../components/TripResultSkeleton";
-import { useState } from "react";
 import DaySimulation from "../components/DaySimulation";
 
 export default function TripResult() {
   const { tripId } = useParams();
+  const [simulationDay, setSimulationDay] = useState(null);
+  const [copied, setCopied] = useState(false);
 
-  const { data, isLoading, isError, error } = useQuery({
+  const { data, isLoading, isError } = useQuery({
     queryKey: ["trip", tripId],
     queryFn: () => getTripById(tripId),
   });
-
-  const [simulationDay, setSimulationDay] = useState(null);
 
   const trip = data?.trip;
   const days = data?.days;
@@ -47,8 +61,9 @@ export default function TripResult() {
         </div>
         <Link
           to="/"
-          className="mt-6 inline-block rounded-btn font-semibold text-brand-700 underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400 focus-visible:ring-offset-2"
+          className="mt-6 inline-flex items-center gap-2 rounded-btn font-semibold text-brand-700 underline-offset-4 hover:underline"
         >
+          <PlusCircle className="h-4 w-4" />
           Yeni plan oluştur
         </Link>
       </div>
@@ -67,41 +82,138 @@ export default function TripResult() {
     return `${amount} ${trip.currency} (~${converted} ${trip.destination_currency})`;
   }
 
+  async function handleShare() {
+    try {
+      await navigator.clipboard.writeText(window.location.href);
+      setCopied(true);
+      toast.success("Plan linki panoya kopyalandı! 🔗");
+      setTimeout(() => setCopied(false), 3000);
+    } catch {
+      toast.error("Link kopyalanamadı.");
+    }
+  }
+
+  async function handleDownloadPdf() {
+    const toastId = toast.loading("PDF hazırlanıyor...");
+    try {
+      await generateTripPdf(trip, days, exchangeRate);
+      toast.success("PDF başarıyla indirildi! 📄", { id: toastId });
+    } catch (err) {
+      console.error("PDF hatası:", err);
+      toast.error("PDF oluşturulurken hata oluştu.", { id: toastId });
+    }
+  }
+
+  // Kategori bazlı tahmini harcama hesaplama
+  const categoryTotals = days
+    ? days.reduce((acc, day) => {
+        day.trip_activities.forEach((act) => {
+          if (act.estimated_cost) {
+            const cat = act.category || "diger";
+            acc[cat] = (acc[cat] || 0) + Number(act.estimated_cost);
+          }
+        });
+        return acc;
+      }, {})
+    : {};
+
+  const totalEstimatedCost = Object.values(categoryTotals).reduce(
+    (sum, val) => sum + val,
+    0,
+  );
+
   return (
-    <div className="mx-auto w-full max-w-3xl px-4 py-10 sm:px-6 sm:py-14">
-      {/* --- Başlık --- */}
-      <header className="mb-8">
-        <div className="flex items-start justify-between gap-3">
-          <h1 className="text-display text-ink-900">{trip.destination}</h1>
-          <div className="flex items-center gap-2">
+    <div className="mx-auto w-full max-w-3xl px-4 py-8 sm:px-6 sm:py-12">
+      {/* --- Başlık & Aksiyonlar --- */}
+      <header className="mb-8 rounded-panel border border-ink-200 bg-white p-6 shadow-panel">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+          <div>
+            <div className="flex items-center gap-2">
+              <MapPin className="h-6 w-6 text-brand-600 shrink-0" />
+              <h1 className="text-display text-ink-900">{trip.destination}</h1>
+            </div>
+            <p className="text-xs text-ink-500 mt-1">
+              Yapay Zeka Destekli Kişiselleştirilmiş Seyahat Planı
+            </p>
+          </div>
+
+          <div className="flex flex-wrap items-center gap-2 shrink-0">
             <button
-              onClick={async () => {
-                try {
-                  await generateTripPdf(trip, days, exchangeRate);
-                } catch (err) {
-                  console.error("PDF oluşturulamadı:", err.message);
-                }
-              }}
-              className="text-sm px-3 py-1.5 rounded border border-gray-300 text-gray-600 hover:border-brand-400 transition cursor-pointer"
+              onClick={handleShare}
+              className="inline-flex items-center gap-1.5 rounded-btn border border-ink-200 bg-white px-3 py-2 text-xs font-semibold text-ink-700 shadow-card transition-all hover:border-brand-300 hover:text-brand-700 cursor-pointer"
+              title="Plan Linkini Paylaş"
             >
-              📄 PDF İndir
+              {copied ? (
+                <Check className="h-4 w-4 text-success-700" />
+              ) : (
+                <Share2 className="h-4 w-4" />
+              )}
+              <span>{copied ? "Kopyalandı" : "Paylaş"}</span>
             </button>
+
+            <button
+              onClick={handleDownloadPdf}
+              className="inline-flex items-center gap-1.5 rounded-btn border border-ink-200 bg-white px-3 py-2 text-xs font-semibold text-ink-700 shadow-card transition-all hover:border-brand-300 hover:text-brand-700 cursor-pointer"
+            >
+              <Download className="h-4 w-4 text-brand-600" />
+              <span>PDF İndir</span>
+            </button>
+
             <FavoriteButton tripId={trip.id} />
           </div>
         </div>
-        <div className="mt-3 flex flex-wrap items-center gap-2">
-          <span className="rounded-full bg-white px-3 py-1 text-xs font-semibold text-ink-700 shadow-card">
+
+        <div className="mt-5 flex flex-wrap items-center gap-2 pt-4 border-t border-ink-100">
+          <span className="inline-flex items-center gap-1 rounded-full bg-ink-100 px-3 py-1 text-xs font-semibold text-ink-700">
+            <Calendar className="h-3.5 w-3.5 text-ink-500" />
             {trip.duration_days} gün
           </span>
-          <span className="rounded-full bg-white px-3 py-1 text-xs font-semibold text-ink-700 shadow-card">
+          <span className="inline-flex items-center gap-1 rounded-full bg-ink-100 px-3 py-1 text-xs font-semibold text-ink-700">
+            <Users className="h-3.5 w-3.5 text-ink-500" />
             {trip.people_count} kişi
           </span>
-          <span className="rounded-full bg-brand-700 px-3 py-1 text-xs font-semibold text-white shadow-card">
-            {withConverted(trip.budget)}
+          <span className="inline-flex items-center gap-1 rounded-full bg-brand-700 px-3 py-1 text-xs font-semibold text-white shadow-card">
+            <Wallet className="h-3.5 w-3.5 text-white/80" />
+            Bütçe: {withConverted(trip.budget)}
           </span>
         </div>
+
+        {/* --- Kategori Bütçe Özeti --- */}
+        {totalEstimatedCost > 0 && (
+          <div className="mt-5 rounded-card bg-ink-50/80 p-4 border border-ink-200/60">
+            <div className="flex items-center justify-between mb-2">
+              <span className="flex items-center gap-1.5 text-xs font-bold text-ink-900">
+                <PieChart className="h-4 w-4 text-brand-600" />
+                Tahmini Harcama Dağılımı
+              </span>
+              <span className="text-xs font-semibold text-brand-700">
+                Toplam ~{withConverted(totalEstimatedCost)}
+              </span>
+            </div>
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs mt-2">
+              {Object.entries(categoryTotals).map(([cat, cost]) => {
+                const meta = getCategoryMeta(cat);
+                return (
+                  <div
+                    key={cat}
+                    className="flex items-center justify-between rounded bg-white p-2 border border-ink-100 shadow-xs"
+                  >
+                    <span className="flex items-center gap-1 font-medium text-ink-700">
+                      <span>{meta.icon}</span>
+                      {meta.label}
+                    </span>
+                    <span className="font-semibold text-ink-900">
+                      ~{cost} {trip.currency}
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
       </header>
 
+      {/* --- Günlük Planlar --- */}
       <div className="flex flex-col gap-6">
         {days.map((day) => (
           <section
@@ -109,25 +221,31 @@ export default function TripResult() {
             className="overflow-hidden rounded-panel border border-ink-200 bg-white shadow-panel"
           >
             {/* --- Gün başlığı --- */}
-            <div className="flex items-start gap-3 border-b border-ink-200 bg-ink-50/60 px-5 py-4">
-              <span className="grid h-9 w-9 shrink-0 place-items-center rounded-btn bg-brand-700 text-sm font-bold text-white">
-                {day.day_number}
-              </span>
-              <div className="min-w-0">
-                <h2 className="text-h2 text-ink-900">{day.day_number}. Gün</h2>
-                <p className="text-xs font-medium text-ink-400">{day.date}</p>
-                <button
-                  onClick={() => setSimulationDay(day)}
-                  className="shrink-0 rounded-btn bg-brand-700 px-3 py-1.5 text-xs font-semibold text-white shadow-card transition-all hover:bg-brand-800 cursor-pointer"
-                >
-                  ▶ Simülasyon
-                </button>
+            <div className="flex items-center justify-between border-b border-ink-200 bg-ink-50/60 px-5 py-4">
+              <div className="flex items-center gap-3">
+                <span className="grid h-9 w-9 shrink-0 place-items-center rounded-btn bg-brand-700 text-sm font-bold text-white shadow-card">
+                  {day.day_number}
+                </span>
+                <div>
+                  <h2 className="text-h2 font-semibold text-ink-900">
+                    {day.day_number}. Gün
+                  </h2>
+                  <p className="text-xs font-medium text-ink-400">{day.date}</p>
+                </div>
               </div>
+
+              <button
+                onClick={() => setSimulationDay(day)}
+                className="inline-flex items-center gap-1.5 rounded-btn bg-brand-700 px-3.5 py-1.5 text-xs font-semibold text-white shadow-card transition-all hover:bg-brand-800 active:translate-y-px cursor-pointer"
+              >
+                <Play className="h-3.5 w-3.5 fill-white" />
+                Simülasyon
+              </button>
             </div>
 
             <div className="p-5">
               {day.summary && (
-                <p className="mb-4 text-sm leading-relaxed text-ink-600">
+                <p className="mb-4 text-sm leading-relaxed text-ink-600 bg-brand-50/40 p-3 rounded-card border border-brand-100/60">
                   {day.summary}
                 </p>
               )}
@@ -158,7 +276,7 @@ export default function TripResult() {
                   return (
                     <article
                       key={activity.id}
-                      className="group rounded-card border border-ink-200 bg-white p-4 shadow-card transition-all duration-200 hover:-translate-y-0.5 hover:border-brand-200 hover:shadow-card-hover"
+                      className="group rounded-card border border-ink-200 bg-white p-4 shadow-card transition-all duration-200 hover:-translate-y-0.5 hover:border-brand-300 hover:shadow-card-hover"
                     >
                       <div className="flex items-start gap-3">
                         <span
@@ -174,7 +292,7 @@ export default function TripResult() {
                               {activity.title}
                             </h3>
                             {activity.time_slot && (
-                              <span className="shrink-0 rounded-full bg-ink-100 px-2 py-0.5 text-xs font-semibold text-ink-500">
+                              <span className="shrink-0 rounded-full bg-ink-100 px-2.5 py-0.5 text-xs font-semibold text-ink-600">
                                 {activity.time_slot}
                               </span>
                             )}
@@ -191,26 +309,28 @@ export default function TripResult() {
                               href={`https://www.google.com/search?q=${encodeURIComponent(activity.place_name)}`}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="inline-flex items-center gap-1 text-xs text-brand-700 hover:underline mt-1"
+                              className="inline-flex items-center gap-1 text-xs text-brand-700 hover:underline mt-1.5 font-medium"
                             >
-                              {activity.place_name} (internette ara)
+                              <MapPin className="h-3 w-3" />
+                              {activity.place_name}
+                              <ExternalLink className="h-3 w-3" />
                             </a>
                           )}
 
                           <div className="mt-3 flex flex-wrap items-center gap-1.5">
                             <span
-                              className={`rounded-full px-2 py-0.5 text-xs font-semibold ${meta.chip}`}
+                              className={`rounded-full px-2.5 py-0.5 text-xs font-semibold ${meta.chip}`}
                             >
                               {meta.label}
                             </span>
                             {activity.estimated_cost != null && (
-                              <span className="rounded-full bg-success-50 px-2 py-0.5 text-xs font-semibold text-success-700">
+                              <span className="rounded-full bg-success-50 px-2.5 py-0.5 text-xs font-semibold text-success-700 border border-success-200/60">
                                 ~{withConverted(activity.estimated_cost)}
                               </span>
                             )}
                             {!activity.is_place_verified && (
-                              <span className="rounded-full bg-warning-50 px-2 py-0.5 text-xs font-semibold text-warning-700">
-                                AI önerisi, doğrulanamadı
+                              <span className="rounded-full bg-warning-50 px-2.5 py-0.5 text-xs font-semibold text-warning-700 border border-warning-200/60">
+                                AI önerisi, harita konumu yok
                               </span>
                             )}
                           </div>
@@ -224,14 +344,17 @@ export default function TripResult() {
           </section>
         ))}
       </div>
-      <div className="mt-8 flex justify-center">
+
+      <div className="mt-10 flex justify-center">
         <Link
           to="/"
-          className="rounded-btn bg-brand-700 px-5 py-2.5 text-sm font-semibold text-white shadow-card transition-all hover:bg-brand-800 active:translate-y-px focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400 focus-visible:ring-offset-2"
+          className="inline-flex items-center gap-2 rounded-btn bg-brand-700 px-6 py-3 text-sm font-semibold text-white shadow-card transition-all hover:bg-brand-800 active:translate-y-px"
         >
-          + Yeni Plan Oluştur
+          <PlusCircle className="h-4 w-4" />
+          Yeni Plan Oluştur
         </Link>
       </div>
+
       {simulationDay && (
         <DaySimulation
           day={simulationDay}
@@ -241,3 +364,4 @@ export default function TripResult() {
     </div>
   );
 }
+

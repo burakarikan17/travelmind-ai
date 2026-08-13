@@ -1,33 +1,40 @@
-import { useState } from 'react'
-import { useNavigate, Link } from 'react-router-dom'
-import { signUp } from '../services/authService'
-import Spinner from '../components/Spinner'
+import { useState } from "react";
+import { useNavigate, Link } from "react-router-dom";
+import { signUp } from "../services/authService";
+import Spinner from "../components/Spinner";
 import {
   cardClass,
   inputClass,
   labelClass,
   primaryButtonClass,
-} from '../lib/uiClasses'
+} from "../lib/uiClasses";
 
 export default function SignUp() {
-  const [fullName, setFullName] = useState('')
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
-  const [error, setError] = useState(null)
-  const [loading, setLoading] = useState(false)
-  const navigate = useNavigate()
+  const [fullName, setFullName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
 
   async function handleSubmit(e) {
-    e.preventDefault()
-    setError(null)
-    setLoading(true)
+    e.preventDefault();
+    setError(null);
+
+    if (password !== confirmPassword) {
+      setError("Şifreler eşleşmiyor.");
+      return;
+    }
+
+    setLoading(true);
     try {
-      await signUp(email, password, fullName)
-      navigate('/')
+      await signUp(email, password, fullName);
+      navigate("/");
     } catch (err) {
-      setError(err.message)
+      setError(err.message);
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
   }
 
@@ -90,6 +97,22 @@ export default function SignUp() {
               className={inputClass}
               aria-describedby="password-hint"
             />
+
+            <div style={{ marginTop: "1rem" }}>
+              <label className="mb-1 block text-sm font-medium text-ink-700">
+                Şifre (Tekrar)
+              </label>
+              <input
+                type="password"
+                placeholder="Şifreni tekrar gir"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                required
+                minLength={6}
+                className="w-full rounded-btn border border-ink-200 px-3 py-2 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-200"
+              />
+            </div>
+
             <p id="password-hint" className="mt-1.5 text-xs text-ink-400">
               En az 6 karakter olmalı.
             </p>
@@ -104,15 +127,19 @@ export default function SignUp() {
             </p>
           )}
 
-          <button type="submit" disabled={loading} className={primaryButtonClass}>
+          <button
+            type="submit"
+            disabled={loading}
+            className={primaryButtonClass}
+          >
             {loading && <Spinner />}
-            {loading ? 'Kaydediliyor...' : 'Kayıt Ol'}
+            {loading ? "Kaydediliyor..." : "Kayıt Ol"}
           </button>
         </form>
       </div>
 
       <p className="mt-6 text-center text-sm text-ink-500">
-        Zaten hesabın var mı?{' '}
+        Zaten hesabın var mı?{" "}
         <Link
           to="/giris"
           className="rounded font-semibold text-brand-700 underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400 focus-visible:ring-offset-2"
@@ -121,5 +148,5 @@ export default function SignUp() {
         </Link>
       </p>
     </div>
-  )
+  );
 }

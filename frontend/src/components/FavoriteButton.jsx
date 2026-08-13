@@ -1,4 +1,6 @@
 import { useState, useEffect } from "react";
+import { Heart } from "lucide-react";
+import { toast } from "sonner";
 import { useAuth } from "../hooks/useAuth";
 import {
   addFavoriteTrip,
@@ -32,12 +34,15 @@ export default function FavoriteButton({ tripId }) {
       if (isFavorited) {
         await removeFavoriteTrip(user.id, tripId);
         setIsFavorited(false);
+        toast.info("Plan favorilerden çıkarıldı.");
       } else {
         await addFavoriteTrip(user.id, tripId);
         setIsFavorited(true);
+        toast.success("Plan favorilere eklendi! ❤️");
       }
     } catch (err) {
       console.error("Favori işlemi başarısız:", err.message);
+      toast.error("İşlem gerçekleştirilemedi.");
     } finally {
       setLoading(false);
     }
@@ -47,13 +52,19 @@ export default function FavoriteButton({ tripId }) {
     <button
       onClick={handleToggle}
       disabled={loading}
-      className={`text-sm px-3 py-1.5 rounded border transition disabled:opacity-50 cursor-pointer disabled:cursor-not-allowed ${
+      className={`inline-flex items-center gap-1.5 text-sm px-3.5 py-2 rounded-btn font-medium border transition-all shadow-card cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed ${
         isFavorited
-          ? "bg-red-50 text-red-600 border-red-200"
-          : "bg-white text-gray-600 border-gray-300 hover:border-red-300"
+          ? "bg-rose-50 text-rose-600 border-rose-200 hover:bg-rose-100"
+          : "bg-white text-ink-700 border-ink-200 hover:border-rose-300 hover:text-rose-600"
       }`}
     >
-      {isFavorited ? "❤️ Favorilerde" : "🤍 Favorile"}
+      <Heart
+        className={`h-4 w-4 transition-transform ${
+          isFavorited ? "fill-rose-600 text-rose-600 scale-110" : ""
+        }`}
+      />
+      <span>{isFavorited ? "Favorilerde" : "Favorile"}</span>
     </button>
   );
 }
+

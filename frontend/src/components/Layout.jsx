@@ -1,11 +1,12 @@
 import { useState } from "react";
 import { Outlet, Link, NavLink, useNavigate } from "react-router-dom";
+import { Compass, PlusCircle, Heart, LogOut, Menu, X, User } from "lucide-react";
 import { useAuth } from "../hooks/useAuth";
 import { signOut } from "../services/authService";
 
 const navLinkClass = ({ isActive }) =>
   [
-    "relative rounded-btn px-3 py-1.5 text-sm font-semibold transition-colors",
+    "relative flex items-center gap-1.5 rounded-btn px-3 py-1.5 text-sm font-semibold transition-colors",
     "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400 focus-visible:ring-offset-2",
     isActive
       ? "text-brand-700 after:absolute after:inset-x-3 after:-bottom-0.5 after:h-0.5 after:rounded-full after:bg-brand-600"
@@ -41,9 +42,9 @@ export default function Layout() {
           >
             <span
               aria-hidden="true"
-              className="grid h-8 w-8 place-items-center rounded-btn bg-gradient-to-br from-brand-500 to-brand-700 text-sm text-white shadow-card"
+              className="grid h-8 w-8 place-items-center rounded-btn bg-gradient-to-br from-brand-500 to-brand-700 text-white shadow-card"
             >
-              ✈
+              <Compass className="h-5 w-5" />
             </span>
             TravelMind <span className="text-brand-700">AI</span>
           </Link>
@@ -53,19 +54,23 @@ export default function Layout() {
             {user ? (
               <>
                 <NavLink to="/" className={navLinkClass} end>
+                  <PlusCircle className="h-4 w-4" />
                   Yeni Plan
                 </NavLink>
                 <NavLink to="/favoriler" className={navLinkClass}>
+                  <Heart className="h-4 w-4" />
                   Favorilerim
                 </NavLink>
-                <span className="hidden max-w-[16ch] truncate text-sm text-ink-500 md:inline">
+                <span className="hidden items-center gap-1 max-w-[18ch] truncate text-sm text-ink-500 md:inline-flex">
+                  <User className="h-3.5 w-3.5" />
                   {user.email}
                 </span>
                 <button
                   onClick={handleSignOut}
-                  className="rounded-btn border border-ink-200 bg-white px-3 py-1.5 text-sm font-semibold text-ink-700 shadow-card transition-all hover:border-danger-200 hover:bg-danger-50 hover:text-danger-700 active:translate-y-px focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-danger-200 focus-visible:ring-offset-2"
+                  className="flex items-center gap-1.5 rounded-btn border border-ink-200 bg-white px-3 py-1.5 text-sm font-semibold text-ink-700 shadow-card transition-all hover:border-danger-200 hover:bg-danger-50 hover:text-danger-700 active:translate-y-px cursor-pointer"
                 >
-                  Çıkış Yap
+                  <LogOut className="h-4 w-4" />
+                  Çıkış
                 </button>
               </>
             ) : (
@@ -77,9 +82,8 @@ export default function Layout() {
                   to="/kayit"
                   className={({ isActive }) =>
                     [
-                      "rounded-btn px-3 py-1.5 text-sm font-semibold text-white shadow-card transition-all",
+                      "rounded-btn px-3.5 py-1.5 text-sm font-semibold text-white shadow-card transition-all",
                       "hover:bg-brand-800 active:translate-y-px",
-                      "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400 focus-visible:ring-offset-2",
                       isActive ? "bg-brand-800" : "bg-brand-700",
                     ].join(" ")
                   }
@@ -94,9 +98,9 @@ export default function Layout() {
           <button
             onClick={() => setMenuOpen((prev) => !prev)}
             aria-label="Menüyü aç/kapat"
-            className="grid h-9 w-9 place-items-center rounded-btn border border-ink-200 bg-white text-ink-700 shadow-card sm:hidden"
+            className="grid h-9 w-9 place-items-center rounded-btn border border-ink-200 bg-white text-ink-700 shadow-card sm:hidden cursor-pointer"
           >
-            {menuOpen ? "✕" : "☰"}
+            {menuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
           </button>
         </div>
 
@@ -107,9 +111,11 @@ export default function Layout() {
               {user ? (
                 <>
                   <NavLink to="/" onClick={closeMenu} className={navLinkClass} end>
+                    <PlusCircle className="h-4 w-4" />
                     Yeni Plan
                   </NavLink>
                   <NavLink to="/favoriler" onClick={closeMenu} className={navLinkClass}>
+                    <Heart className="h-4 w-4" />
                     Favorilerim
                   </NavLink>
                   <span className="truncate px-3 text-xs text-ink-400">
@@ -120,8 +126,9 @@ export default function Layout() {
                       closeMenu();
                       handleSignOut();
                     }}
-                    className="mt-1 rounded-btn border border-ink-200 bg-white px-3 py-2 text-left text-sm font-semibold text-ink-700 shadow-card transition-all hover:border-danger-200 hover:bg-danger-50 hover:text-danger-700"
+                    className="mt-1 flex items-center gap-1.5 rounded-btn border border-ink-200 bg-white px-3 py-2 text-left text-sm font-semibold text-ink-700 shadow-card hover:border-danger-200 hover:bg-danger-50 hover:text-danger-700"
                   >
+                    <LogOut className="h-4 w-4" />
                     Çıkış Yap
                   </button>
                 </>
@@ -133,7 +140,7 @@ export default function Layout() {
                   <NavLink
                     to="/kayit"
                     onClick={closeMenu}
-                    className="rounded-btn bg-brand-700 px-3 py-2 text-center text-sm font-semibold text-white shadow-card transition-all hover:bg-brand-800"
+                    className="rounded-btn bg-brand-700 px-3 py-2 text-center text-sm font-semibold text-white shadow-card hover:bg-brand-800"
                   >
                     Kayıt Ol
                   </NavLink>
