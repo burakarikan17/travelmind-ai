@@ -121,18 +121,6 @@ router.post(
         err.message === "GEMINI_API_ERROR" ||
         err.message === "GEMINI_EMPTY_RESPONSE"
       ) {
-        return res
-          .status(502)
-          .json({
-            error: "GEMINI_API_ERROR",
-            message: "Yapay zeka servisine ulaşılamadı.",
-          });
-      }
-      
-      if (
-        err.message === "GEMINI_API_ERROR" ||
-        err.message === "GEMINI_EMPTY_RESPONSE"
-      ) {
         return res.status(502).json({
           error: "GEMINI_API_ERROR",
           message: "Yapay zeka servisine ulaşılamadı.",

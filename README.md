@@ -64,7 +64,7 @@ Proje, geliştirme hızına göre 25 günden **20 güne** revize edilmiş bir st
 - Supabase (PostgreSQL + Auth + Row Level Security)
 
 ### Dış Servisler
-- **Google Gemini API** (`gemini-3.5-flash`) — plan üretimi
+- **Google Gemini API** (`gemini-flash-lite-latest`) — plan üretimi
 - **Nominatim (OpenStreetMap)** — yer doğrulama, sıralı istek (rate-limit uyumlu)
 - **Open-Meteo** — hava durumu (key gerektirmez, ~16 gün ileriye kadar tahmin)
 - **Frankfurter API** — canlı döviz kuru çevirme (key gerektirmez)

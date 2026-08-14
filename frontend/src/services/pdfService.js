@@ -23,8 +23,6 @@ async function loadFont(url) {
   return arrayBufferToBase64(buffer);
 }
 
-let fontsLoaded = false;
-
 async function ensureFonts(doc) {
   const regular = await loadFont(FONT_URL);
   const bold = await loadFont(FONT_BOLD_URL);
