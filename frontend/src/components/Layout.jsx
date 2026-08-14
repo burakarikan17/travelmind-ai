@@ -1,6 +1,16 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Outlet, Link, NavLink, useNavigate } from "react-router-dom";
-import { Compass, PlusCircle, Heart, LogOut, Menu, X, User } from "lucide-react";
+import {
+  Compass,
+  PlusCircle,
+  Heart,
+  LogOut,
+  Menu,
+  X,
+  User,
+  Sun,
+  Moon,
+} from "lucide-react";
 import { useAuth } from "../hooks/useAuth";
 import { signOut } from "../services/authService";
 
@@ -13,10 +23,38 @@ const navLinkClass = ({ isActive }) =>
       : "text-ink-600 hover:bg-ink-100 hover:text-ink-900",
   ].join(" ");
 
+// Uzun e-postaları belli karakterden sonra "..." yapan basit yardımcı fonksiyon
+function formatEmail(email) {
+  if (!email) return "";
+  if (email.length > 18) {
+    return email.slice(0, 15) + "...";
+  }
+  return email;
+}
+
 export default function Layout() {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [menuOpen, setMenuOpen] = useState(false);
+
+  // Koyu mod durumu (sayfa yenilendiğinde localStorage'dan hatırlaması için)
+  const [isDark, setIsDark] = useState(() => {
+    return localStorage.getItem("theme") === "dark";
+  });
+
+  useEffect(() => {
+    if (isDark) {
+      document.documentElement.classList.add("dark");
+      localStorage.setItem("theme", "dark");
+    } else {
+      document.documentElement.classList.remove("dark");
+      localStorage.setItem("theme", "light");
+    }
+  }, [isDark]);
+
+  function toggleDarkMode() {
+    setIsDark((prev) => !prev);
+  }
 
   async function handleSignOut() {
     try {
@@ -32,7 +70,7 @@ export default function Layout() {
   }
 
   return (
-    <div className="min-h-screen bg-ink-50">
+    <div className="min-h-screen bg-ink-50 transition-colors">
       <nav className="sticky top-0 z-[9999] border-b border-ink-200/80 bg-white/80 shadow-nav backdrop-blur-md">
         <div className="mx-auto flex max-w-5xl items-center justify-between gap-4 px-4 py-3 sm:px-6">
           <Link
@@ -61,9 +99,12 @@ export default function Layout() {
                   <Heart className="h-4 w-4" />
                   Favorilerim
                 </NavLink>
-                <span className="hidden items-center gap-1 max-w-[18ch] truncate text-sm text-ink-500 md:inline-flex">
+                <span
+                  title={user.email}
+                  className="hidden items-center gap-1 text-sm font-medium text-ink-500 md:inline-flex"
+                >
                   <User className="h-3.5 w-3.5" />
-                  {user.email}
+                  {formatEmail(user.email)}
                 </span>
                 <button
                   onClick={handleSignOut}
@@ -92,16 +133,45 @@ export default function Layout() {
                 </NavLink>
               </>
             )}
+
+            {/* --- Koyu Mod Değiştirme Butonu --- */}
+            <button
+              onClick={toggleDarkMode}
+              title={isDark ? "Açık Moda Geç" : "Koyu Moda Geç"}
+              aria-label="Koyu modu değiştir"
+              className="grid h-9 w-9 place-items-center rounded-btn border border-ink-200 bg-white text-ink-700 shadow-card transition-colors hover:border-brand-300 hover:text-brand-700 cursor-pointer"
+            >
+              {isDark ? (
+                <Sun className="h-4 w-4 text-amber-400" />
+              ) : (
+                <Moon className="h-4 w-4 text-ink-700" />
+              )}
+            </button>
           </div>
 
-          {/* --- Hamburger butonu (sadece mobil) --- */}
-          <button
-            onClick={() => setMenuOpen((prev) => !prev)}
-            aria-label="Menüyü aç/kapat"
-            className="grid h-9 w-9 place-items-center rounded-btn border border-ink-200 bg-white text-ink-700 shadow-card sm:hidden cursor-pointer"
-          >
-            {menuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-          </button>
+          {/* --- Mobil Butonlar (Koyu mod + Hamburger) --- */}
+          <div className="flex items-center gap-2 sm:hidden">
+            <button
+              onClick={toggleDarkMode}
+              title={isDark ? "Açık Moda Geç" : "Koyu Moda Geç"}
+              aria-label="Koyu modu değiştir"
+              className="grid h-9 w-9 place-items-center rounded-btn border border-ink-200 bg-white text-ink-700 shadow-card cursor-pointer"
+            >
+              {isDark ? (
+                <Sun className="h-4 w-4 text-amber-400" />
+              ) : (
+                <Moon className="h-4 w-4 text-ink-700" />
+              )}
+            </button>
+
+            <button
+              onClick={() => setMenuOpen((prev) => !prev)}
+              aria-label="Menüyü aç/kapat"
+              className="grid h-9 w-9 place-items-center rounded-btn border border-ink-200 bg-white text-ink-700 shadow-card cursor-pointer"
+            >
+              {menuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+            </button>
+          </div>
         </div>
 
         {/* --- Mobil açılır menü --- */}
@@ -118,8 +188,8 @@ export default function Layout() {
                     <Heart className="h-4 w-4" />
                     Favorilerim
                   </NavLink>
-                  <span className="truncate px-3 text-xs text-ink-400">
-                    {user.email}
+                  <span title={user.email} className="px-3 text-xs text-ink-400">
+                    {formatEmail(user.email)}
                   </span>
                   <button
                     onClick={() => {

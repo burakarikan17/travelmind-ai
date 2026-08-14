@@ -99,3 +99,53 @@ body {
 button:not(:disabled) {
   cursor: pointer;
 }
+
+/* ---- Koyu Mod (Dark Mode) ---- */
+html.dark {
+  color-scheme: dark;
+
+  /* Nötr renkleri tersine çevirerek koyu temaya geçirir */
+  --color-ink-50: #0f172a;
+  --color-ink-100: #1e293b;
+  --color-ink-200: #334155;
+  --color-ink-300: #475569;
+  --color-ink-400: #94a3b8;
+  --color-ink-500: #cbd5e1;
+  --color-ink-600: #e2e8f0;
+  --color-ink-700: #f1f5f9;
+  --color-ink-800: #f8fafc;
+  --color-ink-900: #ffffff;
+}
+
+html.dark body {
+  background-color: #0f172a;
+  color: #f1f5f9;
+}
+
+/* Koyu modda kartlar, girdiler ve menü arka planları */
+html.dark .bg-white {
+  background-color: #1e293b;
+}
+
+html.dark .bg-white\/80 {
+  background-color: rgba(30, 41, 59, 0.85);
+}
+
+html.dark .bg-ink-50\/60,
+html.dark .bg-ink-50\/80 {
+  background-color: rgba(15, 23, 42, 0.6);
+}
+
+html.dark .border-ink-200,
+html.dark .border-ink-200\/60,
+html.dark .border-ink-200\/80 {
+  border-color: #334155;
+}
+
+html.dark input,
+html.dark select {
+  background-color: #0f172a;
+  color: #f8fafc;
+  border-color: #334155;
+}
+
