@@ -265,7 +265,7 @@ export default function CreateTrip() {
                     className={`self-start text-sm px-3 py-1.5 rounded-full border transition ${
                       isAuto
                         ? "bg-brand-700 text-white border-brand-700"
-                        : "bg-white text-gray-600 border-gray-300 hover:border-brand-400"
+                        : "bg-white border-gray-300 hover:border-brand-400"
                     }`}
                   >
                     ⚡ {isAuto ? "Otomatik Seçildi" : "Otomatik Seç"}
@@ -291,7 +291,7 @@ export default function CreateTrip() {
                             className={`px-3 py-1.5 rounded-full text-sm border transition ${
                               selected
                                 ? "bg-brand-700 text-white border-brand-700"
-                                : "bg-white text-gray-700 border-gray-300 hover:border-brand-400"
+                                : "bg-white border-gray-300 hover:border-brand-400"
                             }`}
                           >
                             {opt.label}
